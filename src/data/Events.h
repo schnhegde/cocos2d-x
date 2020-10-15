@@ -11,8 +11,9 @@ class Events {
   static const char GAME_COMPLETED[];
   static const char GAME_UNDO[];
   static const char GAME_RESUMED[];
-  static const char ADS_SHOWING[];
-  static const char ADS_CLOSED[];
+  static const char REWARDED_VIDEO_COMPLETED[];
+  static const char NO_VIDEOS[];
+  static const char REWARDED_VIDEO_CANCELLED[];
 };
 }  // namespace data
 

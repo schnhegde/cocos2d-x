@@ -24,13 +24,39 @@ THE SOFTWARE.
 ****************************************************************************/
 package org.cocos2dx.cpp;
 
+import android.app.Activity;
 import android.os.Bundle;
 import org.cocos2dx.lib.Cocos2dxActivity;
 import android.os.Build;
+import android.util.Log;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdCallback;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+
+
 public class AppActivity extends Cocos2dxActivity {
+
+    static String rewardedId = "ca-app-pub-3940256099942544/5224354917";
+    static RewardedAd rewardedAd = null;
+    static RewardedAdCallback rewardedAdCallback = null;
+    static AppActivity instance;
+    static bool isRewarding = false;
+
+    public static native void rewardVideoWatchCompleted();
+    public static native void rewardVideoCancelled();
+    public static native void rewardVideoFailedToShow();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +78,79 @@ public class AppActivity extends Cocos2dxActivity {
             getWindow().setAttributes(lp);
         }
         // DO OTHER INITIALIZATION BELOW
-        
+        instance = this;
+        initAds();
+    }
+
+    static void loadRewardedAd() {
+        RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
+            @Override
+            public void onRewardedAdLoaded() {
+                // Ad successfully loaded.
+//                AppActivity.showRewardedAd();
+            }
+
+           @Override
+            public void onRewardedAdFailedToLoad(LoadAdError adError) {
+                // Ad failed to load.
+               Log.d("{sachin}", "failed to load ad");
+            }
+        };
+        rewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
+    }
+
+    public static bool isRewardedAdLoaded() {
+        return rewardedAd.isLoaded();
+    }
+
+    public static void showRewardedAd() {
+        if (rewardedAd.isLoaded()) {
+            Activity activityContext = instance;
+            RewardedAdCallback adCallback = new RewardedAdCallback() {
+                @Override
+                public void onRewardedAdOpened() {
+                    // Ad opened.
+                }
+
+                @Override
+                public void onRewardedAdClosed() {
+                    // Ad closed.
+                    if (isRewarding) {
+                        rewardVideoWatchCompleted();
+                    } else {
+                        rewardVideoCancelled();
+                    }
+                    isRewarding = false;
+                    loadRewardedAd();
+                }
+
+                @Override
+                public void onUserEarnedReward(@NonNull RewardItem reward) {
+                    // User earned reward.
+                    isRewarding = true;
+                }
+
+                @Override
+                public void onRewardedAdFailedToShow(AdError adError) {
+                    // Ad failed to display.
+                    rewardVideoCancelled();
+                }
+            };
+            rewardedAd.show(activityContext, adCallback);
+        } else {
+            Log.d("TAG", "The rewarded ad wasn't loaded yet.");
+        }
+
+    }
+
+    public static void initAds() {
+        MobileAds.initialize(instance, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+                rewardedAd = new RewardedAd(instance, rewardedId);
+                loadRewardedAd();
+            }
+        });
     }
 
 }
