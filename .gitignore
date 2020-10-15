@@ -1,0 +1,206 @@
+# OSX - https://github.com/github/gitignore/blob/master/Global/OSX.gitignore
+.DS_Store
+.AppleDouble
+.LSOverride
+backup*
+
+# Icon must end with two \r
+Icon
+
+ios-build
+
+
+# Thumbnails
+._*
+
+# Pods
+#
+*Pods/
+
+#xcode userdata
+*xcuserdata/
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+# Windows - https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# CMake
+*CMakeCache.txt
+*CMakeFiles/
+*cmake_install.cmake
+*Makefile
+
+# cocos studio
+*.udf
+
+# proj.android
+bin/
+proj.android/assets/
+proj.android/bin/
+proj.android/gen/
+proj.android/libs/
+proj.android/local.properties
+proj.android/obj/
+proj.android/app/release/
+proj.android/app/debug/
+proj.android-studio/app/Photon_AndroidNDK/
+proj.android/app/libs/plugin_review_res_project/build/
+cocos2d/cocos/platform/android/java/bin/
+cocos2d/cocos/platform/android/java/gen/
+cocos2d/cocos/platform/android/java/local.properties
+cocos2d/cocos/platform/android/java/res/
+.metadata/
+.recommenders/
+
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea
+.idea
+.DS_Store
+/build
+/captures
+/.externalNativeBuild
+*.iml
+app/libs
+proj.android/.gradle
+proj.android/local.properties
+proj.android/.idea/workspace.xml
+proj.android/.idea/libraries
+proj.android/.idea
+proj.android/.idea
+proj.android/.DS_Store
+proj.android/build
+
+# proj.android-studio
+.idea/
+*.iml
+**/*.iml
+proj.android-studio/app/assets/
+proj.android-studio/app/obj/
+proj.android-studio/app/libs/armeabi/
+proj.android-studio/app/libs/armeabi-v7a/
+proj.android-studio/app/libs/x86/
+proj.android-studio/app/gradle.properties
+proj.android-studio/app/local.properties
+proj.android-studio/*/build/
+
+
+cocos2d/cocos/platform/android/libcocos2dx/build/
+cocos2d/cocos/platform/android/java/libs/gps/build/
+
+# proj.ios_mac
+cocos2d/build/build/
+cocos2d/build/cocos2d_libs.xcodeproj/xcuserdata/
+proj.ios_mac/build/
+proj.ios_mac/*.xcodeproj/project.xcworkspace
+proj.ios_mac/*.xcodeproj/xcuserdata/
+!*.pch
+
+# proj.linux
+
+# proj.win32
+*.suo
+.vs/
+.vscode/
+cocos2d/cocos/2d/Debug.*/
+cocos2d/cocos/editor-support/spine/proj.win32/Debug.*/
+cocos2d/external/Box2D/proj.win32/Debug.*/
+cocos2d/external/recast/proj.win32/Debug.*/
+cocos2d/cocos/2d/Release.*/
+cocos2d/cocos/editor-support/spine/proj.win32/Release.*/
+cocos2d/external/Box2D/proj.win32/Release.*/
+cocos2d/external/recast/proj.win32/Release.*/
+proj.win32/*.sdf
+proj.win32/*.opensdf
+proj.win32/Debug.*/
+proj.win32/Release.*/
+
+# Cocos project.ios-mac libraries and plugins
+proj.ios_mac/Bolts.framework
+proj.ios_mac/FBSDKCoreKit.framework
+proj.ios_mac/FBSDKLoginKit.framework
+proj.ios_mac/FBSDKShareKit.framework
+proj.ios_mac/Firebase
+proj.ios_mac/plugin_review_res_bundle
+proj.ios_mac/PluginFacebook.framework
+proj.ios_mac/PluginFirebase.framework
+proj.ios_mac/PluginIAP.framework
+proj.ios_mac/PluginReview.framework
+proj.ios_mac/sdkbox.framework
+# add new plugin here
+
+proj.android/app/.cxx
+proj.android/app/.externalNativeBuild
+
+
+# Cocos project.ios-mac libraries and plugins
+proj.ios_mac/Bolts.framework
+proj.ios_mac/FBSDKCoreKit.framework
+proj.ios_mac/FBSDKLoginKit.framework
+proj.ios_mac/FBSDKShareKit.framework
+proj.ios_mac/Firebase
+proj.ios_mac/plugin_review_res_bundle
+proj.ios_mac/PluginFacebook.framework
+proj.ios_mac/PluginFirebase.framework
+proj.ios_mac/PluginIAP.framework
+proj.ios_mac/PluginReview.framework
+proj.ios_mac/sdkbox.framework
+proj.ios_mac/GoogleUtilities.framework
+proj.ios_mac/GoogleAppUtilities.framework
+proj.ios_mac/GoogleUtilities.framework
+proj.ios_mac/GoogleAuthUtilities.framework
+proj.ios_mac/GoogleNetworkingUtilities.framework
+proj.ios_mac/GoogleOpenSource.framework
+proj.ios_mac/GooglePlus.bundle
+proj.ios_mac/GooglePlus.framework
+proj.ios_mac/GoogleSignIn.bundle
+proj.ios_mac/GoogleSignIn.framework
+proj.ios_mac/GoogleSymbolUtilities.framework
+proj.ios_mac/Plugingpg.framework
+proj.ios_mac/gpg.bundle
+proj.ios_mac/gpg.framework
+
+# Codelite files
+.codelite/
+build.sh
+compile_commands.json
+engine/
+proj.linux/
+unblock_test.project
+unblock_test.workspace
+tags
+*swp
