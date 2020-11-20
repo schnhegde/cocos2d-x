@@ -37,3 +37,7 @@
 #-dontwarn android.webkit.WebView
 #-dontwarn android.net.http.SslError
 #-dontwarn android.webkit.WebViewClient
+-ignorewarnings
+-keep class * {
+    public private *;
+}

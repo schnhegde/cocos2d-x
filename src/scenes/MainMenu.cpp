@@ -175,6 +175,7 @@ void MainMenu::CBBtnPlay(Ref* sender, Widget::TouchEventType type) {
 
 void MainMenu::CBBtnSettings(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(Settings::createScene(false));
   }
 }

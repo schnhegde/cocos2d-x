@@ -5,8 +5,11 @@
 #include "../data/Config.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "./MainMenu.h"
+#include "../PlatformIncludes.h"
 
+using modules::SoundUtil;
 using cocos2d::Color4B;
 using cocos2d::Director;
 using cocos2d::Size;
@@ -177,18 +180,34 @@ void Settings::addButtonsLayout() {
   toggleLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   buttonsLayout->addChild(toggleLayout);
 
-  buyButton = UiUtil::createButton("button_orange_big.png", "Buy", 34, false);
-  buyButton->addTouchEventListener(CC_CALLBACK_2(Settings::CBBtnBuy, this));
-  Size buySize = buyButton->getContentSize();
-  CommonLayout* buyBg = CommonLayout::create();
-  buyBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
-  buyBg->setContentSize(Size(buySize.width * 1.25, buySize.height * 1.25));
-  buyBg->setBackGroundImage("./cutout_small", Widget::TextureResType::PLIST);
-  buyBg->setBackGroundImageScale9Enabled(true);
-  buyBg->addChild(buyButton);
-  buyBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  // TODO(sachin): uncomment this once iap is done.
+  if (GameManager::getInstance()->getBillingConnected() && !GameManager::getInstance()->isGameOwned()) {
+    buyButton = UiUtil::createButton("button_orange_big.png", "Buy", 34, false);
+    buyButton->addTouchEventListener(CC_CALLBACK_2(Settings::CBBtnBuy, this));
+    Size buySize = buyButton->getContentSize();
+    CommonLayout* buyBg = CommonLayout::create();
+    buyBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
+    buyBg->setContentSize(Size(buySize.width * 1.25, buySize.height * 1.25));
+    buyBg->setBackGroundImage("./cutout_small", Widget::TextureResType::PLIST);
+    buyBg->setBackGroundImageScale9Enabled(true);
+    buyBg->addChild(buyButton);
+    buyBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
-  buttonsLayout->addChild(buyBg);
+    buttonsLayout->addChild(buyBg);
+  }
+
+  feedbackButton = UiUtil::createButton("button_orange_big.png", "Feedback", 34, false);
+  feedbackButton->addTouchEventListener(CC_CALLBACK_2(Settings::CBBtnFeedback, this));
+  Size feedBackSize = feedbackButton->getContentSize();
+  CommonLayout* feedBackBg = CommonLayout::create();
+  feedBackBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
+  feedBackBg->setContentSize(Size(feedBackSize.width * 1.25, feedBackSize.height * 1.25));
+  feedBackBg->setBackGroundImage("./cutout_small", Widget::TextureResType::PLIST);
+  feedBackBg->setBackGroundImageScale9Enabled(true);
+  feedBackBg->addChild(feedbackButton);
+  feedBackBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+
+  buttonsLayout->addChild(feedBackBg);
 
   buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   mainLayout->addChild(buttonsLayout);
@@ -207,10 +226,15 @@ void Settings::addMessageLayout() {
                                 Widget::TextureResType::PLIST);
   messageBg->setBackGroundImageScale9Enabled(true);
   // TODO(sachin): localization
-  string message =
-      "If you enjoy playing the game,\nsupport us by buying the game\n\n*any "
-      "purchase will disable all involuntary ads";
-
+  std::string message1 =
+      "Thanks for playing our game!\n\n"
+      "Please feel free to click on feedback button above\nand let us know if you faced any issue."
+      "\n\nSelect your email client after clicking on feedback.";
+  std::string message2 =
+      "Thanks for buying a copy of our game!\n\n"
+      "Please feel free to click on feedback button above\nand let us know if you faced any issue."
+      "\n\nSelect your email client after clicking on feedback.";
+  std::string message = GameManager::getInstance()->isGameOwned() ? message2 : message1;
   Text* messageText = Text::create(message, Config::FONT_FILE, 20);
   messageText->enableOutline(Color4B::BLACK, 1);
   messageText->setTextVerticalAlignment(TextVAlignment::CENTER);
@@ -227,10 +251,10 @@ void Settings::addMessageLayout() {
 
 void Settings::CBBtnBack(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     if (!isPaused) {
       UiUtil::transitionFade(MainMenu::createScene());
     } else {
-      // TODO(sachin): popfade back to gamescene
       UiUtil::popFade(getParent());
     }
   }
@@ -238,29 +262,34 @@ void Settings::CBBtnBack(Ref* pSender, Widget::TouchEventType type) {
 
 void Settings::CBBtnHome(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(MainMenu::createScene());
   }
 }
 
 void Settings::CBBtnPlay(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::popFade(getParent());
   }
 }
 
 void Settings::CBBtnSound(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     bool sound_state = GameManager::getInstance()->getSoundState();
     sound_state = !sound_state;
     GameManager::getInstance()->setSoundState(sound_state);
     string texture_name = "./button_sound_";
     texture_name += (sound_state ? "on" : "off");
     soundButton->loadTextureNormal(texture_name, Widget::TextureResType::PLIST);
+    SoundUtil::getInstance()->updateIsSoundOff();
   }
 }
 
 void Settings::CBBtnMusic(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     bool music_state = GameManager::getInstance()->getMusicState();
     music_state = !music_state;
     GameManager::getInstance()->setMusicState(music_state);
@@ -272,7 +301,15 @@ void Settings::CBBtnMusic(Ref* pSender, Widget::TouchEventType type) {
 
 void Settings::CBBtnBuy(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
-    // TODO(sachin): buy gameforever
+    SoundUtil::getInstance()->playEfxBtnTouched();
+    purchase("buy_game");
+  }
+}
+
+void Settings::CBBtnFeedback(Ref* pSender, Widget::TouchEventType type) {
+  if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
+    openFeedbackEmail();
   }
 }
 

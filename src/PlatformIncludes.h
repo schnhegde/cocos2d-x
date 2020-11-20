@@ -3,13 +3,14 @@
 #include <string>
 
 #include "data/Config.h"
-using std::string;
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)  // NOLINT
 extern "C" void initAds();
-extern "C" void isRewardedAdLoaded();
+extern "C" bool isRewardedAdAvailable();
 extern "C" void showRewardedAd();
+extern "C" void openFeedbackEmail();
+extern "C" void purchase();
 #endif
 
 #endif  // SRC_PLATFORMINCLUDES_H_

@@ -7,9 +7,13 @@
 #include "../modules/GameManager.h"
 #include "../modules/LevelLoader.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "./LevelSelect.h"
 #include "./Settings.h"
 #include "GameFinishScene.h"
+#include "WatchVideoPopup.h"
+#include "MessagePopup.h"
+#include "OutOfMovesPopup.h"
 
 using cocos2d::Color4B;
 using cocos2d::Director;
@@ -31,8 +35,12 @@ using modules::LevelLoader;
 using modules::UiUtil;
 using scenes::GameFinishScene;
 using std::string;
+using modules::SoundUtil;
 
 namespace scenes {
+
+const char* GameScene::messages[3] = { "Swipe right to complete the level", "Swipe up/down/left/right\nto move the worker",
+                               "Push the boxes to their goals to win!"};
 
 Scene* GameScene::createScene(int levelNo, bool isTutorial) {
   auto scene = GameScene::create();
@@ -52,6 +60,7 @@ bool GameScene::init() {
   if (!Scene::init()) {
     return false;
   }
+  currentPossibleReward = GameScene::PossibleRewards::UNDO;
   loadPlistFile();
   initListeners(this);
   return true;
@@ -69,6 +78,8 @@ void GameScene::initEventStrings() {
   EventListenerManager::eventStrs.push_back(Events::GAME_UNDO_COMPLETED);
   EventListenerManager::eventStrs.push_back(Events::ADS_SHOWING);
   EventListenerManager::eventStrs.push_back(Events::ADS_CLOSED);
+  EventListenerManager::eventStrs.push_back(Events::REWARDED_VIDEO_COMPLETED);
+  EventListenerManager::eventStrs.push_back(Events::REWARDED_VIDEO_CANCELLED);
 }
 
 void GameScene::initEventHandlers() {
@@ -84,6 +95,60 @@ void GameScene::initEventHandlers() {
       CC_CALLBACK_1(GameScene::handleAdsShowing, this));
   EventListenerManager::eventHandlers.push_back(
       CC_CALLBACK_1(GameScene::handleAdsClosed, this));
+  EventListenerManager::eventHandlers.push_back(
+      CC_CALLBACK_1(GameScene::rewardedCompleted, this));
+  EventListenerManager::eventHandlers.push_back(
+      CC_CALLBACK_1(GameScene::rewardedCancelled, this));
+}
+
+void GameScene::rewardedCompleted(EventCustom* event) {
+  string messageString = "";
+  GameManager* gm = GameManager::getInstance();
+  int solutionCount = gm->getSolutionCount();
+  int undoCount = gm->getUndoCount();
+
+  switch (currentPossibleReward) {
+    case PossibleRewards::MOVES:
+      messageString = "Hurray! you got +";
+      messageString += std::to_string(originalMaxMoves);
+      messageString += " moves";
+      maxMoves = originalMaxMoves;
+      movesText->setString(std::to_string(maxMoves));
+      break;
+    case PossibleRewards::SOLUTION:
+      messageString = "Hurray! you got +1 solution";
+      solutionCount++;
+      gm->setSolutionCount(solutionCount);
+    break;
+    default:
+    case PossibleRewards::UNDO:
+      messageString = "Hurray! you got +1 undo";
+      undoCount++;
+      gm->setUndoCount(undoCount);
+    break;
+  }
+  refreshButtons();
+  auto messagePopup = MessagePopup::createPopup(messageString);
+  addChild(messagePopup, 10);
+}
+
+void GameScene::refreshButtons() {
+  GameManager* gm = GameManager::getInstance();
+  int solutionCount = gm->getSolutionCount();
+  int undoCount = gm->getUndoCount();
+  undoButton->getTitleRenderer()->setString(std::to_string(undoCount));
+  solutionButton->getTitleRenderer()->setString(std::to_string(solutionCount));
+}
+
+void GameScene::rewardedCancelled(EventCustom* event) {
+  if (currentPossibleReward == GameScene::PossibleRewards::MOVES) {
+    gameFinished = true;
+    addChild(GameFinishScene::createScene(moveCount), 10);
+  } else {
+    string messageString = "Oops! watch the full video for rewards";
+    auto messagePopup = MessagePopup::createPopup(messageString);
+    addChild(messagePopup, 10);
+  }
 }
 
 void GameScene::handleGameComplete(EventCustom* event) {
@@ -120,8 +185,10 @@ void GameScene::handleMoveCompleted(EventCustom* event) {
   if (maxMoves <= 0) {
     // show game failed popup
     //        unScheduleGameTimer();
-    gameFinished = true;
-    addChild(GameFinishScene::createScene(moveCount), 10);
+    // 
+    currentPossibleReward = GameScene::PossibleRewards::MOVES;
+    auto popup = OutOfMovesPopup::createPopup(originalMaxMoves);
+    addChild(popup, 10);
   }
   movesText->setString(std::to_string(maxMoves));
 }
@@ -151,6 +218,7 @@ void GameScene::onEnter() {
   int best_move_size = move_text.length();
   maxMoves =
       best_move_size + std::ceil(static_cast<float>(best_move_size) * 0.5);
+  originalMaxMoves = maxMoves;
   Size screenSize = Director::getInstance()->getVisibleSize();
   mainLayout = CommonLayout::create();
   mainLayout->setLayoutType(CommonLayout::Type::VERTICAL);
@@ -181,7 +249,15 @@ void GameScene::onEnter() {
   initialTouchPos[1] = 0;
   this->scheduleUpdate();
 
-  if (isTutorial) {
+  int current_max_level = GameManager::getInstance()->getCurrentLevel();
+  if (isTutorial || current_max_level <= 3) {
+    std::string messageText = messages[current_max_level - 1];
+    tutorial_text = Text::create(messageText, Config::FONT_FILE, 30);
+    tutorial_text->enableOutline(cocos2d::Color4B::BLACK, 1);
+    tutorial_text->setPositionNormalized(cocos2d::Vec2(0.5, 0.2));
+    tutorial_text->setTextHorizontalAlignment(cocos2d::TextHAlignment::CENTER);
+    tutorial_text->setTextVerticalAlignment(cocos2d::TextVAlignment::CENTER);
+    addChild(tutorial_text, 10);
     startTutorial();
   }
 }
@@ -489,6 +565,7 @@ void GameScene::animateHand(int x, int y) {
 
 void GameScene::CBBtnUndo(Ref* sender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     int undoCount = GameManager::getInstance()->getUndoCount();
 
     if (undoCount > 0) {
@@ -498,9 +575,9 @@ void GameScene::CBBtnUndo(Ref* sender, Widget::TouchEventType type) {
         // TODO(sachin): show rewarded popup
         timerPaused = true;
         isUndoReward = true;
-        //                  watchVideoPopup =
-        //                  WatchVideoPopup::createPopup(isRewardedVideoAvailable());
-        //                  addChild(watchVideoPopup, 10);
+        currentPossibleReward = GameScene::PossibleRewards::UNDO;
+        auto popup = WatchVideoPopup::createPopup("undo");
+        addChild(popup, 10);
       }
     }
   }
@@ -508,20 +585,22 @@ void GameScene::CBBtnUndo(Ref* sender, Widget::TouchEventType type) {
 
 void GameScene::CBBtnPause(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::pushFade(this, Settings::createScene(true));
   }
 }
 
 void GameScene::CBBtnSolution(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     int solutionCount = GameManager::getInstance()->getSolutionCount();
     if (solutionCount <= 0) {
       // show buy hints popup
       //        addChild(BuyHintsPopup::createPopup(), 10);
       isUndoReward = false;
-      // watchVideoPopup =
-      // WatchVideoPopup::createPopup(isRewardedVideoAvailable(), true);
-      // addChild(watchVideoPopup, 10);
+      currentPossibleReward = GameScene::PossibleRewards::SOLUTION;
+      auto popup = WatchVideoPopup::createPopup("solution");
+      addChild(popup, 10);
     } else {
       solutionCount--;
       GameManager::getInstance()->setSolutionCount(solutionCount);

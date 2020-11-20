@@ -4,11 +4,23 @@
 #include "../modules/CommonLayout.h"
 
 using modules::CommonLayout;
+using cocos2d::Ref;
+using cocos2d::ui::Widget;
 
 namespace scenes {
 class WatchVideoPopup : public CommonLayout {
- private:
- public:
+  private:
+    CommonLayout* buttonsLayout;
+    CommonLayout* messageLayout;
+    std::string reward;
+    void createView();
+    void CBBtnCancel(Ref* sender, Widget::TouchEventType type);
+    void CBBtnWatch(Ref* sender, Widget::TouchEventType type);
+    void swallowTouches();
+  public:
+    static WatchVideoPopup* createPopup(std::string reward);
+    CREATE_FUNC(WatchVideoPopup);
+    virtual void onEnter();
 };
 }  // namespace scenes
 

@@ -32,6 +32,7 @@ class Settings : public Scene {
   Button* soundButton;
   Button* musicButton;
   Button* buyButton;
+  Button* feedbackButton;
 
   void addHeaderLayout();
   void addMessageLayout();
@@ -43,6 +44,7 @@ class Settings : public Scene {
   void CBBtnSound(Ref* pSender, Widget::TouchEventType type);
   void CBBtnMusic(Ref* pSender, Widget::TouchEventType type);
   void CBBtnBuy(Ref* pSender, Widget::TouchEventType type);
+  void CBBtnFeedback(Ref* pSender, Widget::TouchEventType type);
 
  public:
   static Scene* createScene(bool isPaused);

@@ -25,6 +25,8 @@ void GameManager::init() {
   solutionCount = userPrefs->getIntegerForKey(Keys::SOLUTION_COUNT, 3);
   currentLevel = userPrefs->getIntegerForKey(Keys::CURRENT_LEVEL, 1);
   isTutorialDone = userPrefs->getBoolForKey(Keys::TUTORIAL_DONE, false);
+  gameOwned = userPrefs->getBoolForKey(Keys::GAME_OWNED, false);
+  billingConnected = false;
 }
 
 int GameManager::getUndoCount() { return undoCount; }
@@ -98,5 +100,14 @@ void GameManager::setMusicState(bool state) {
 }
 
 int GameManager::getTotalStarsWon() { return totalStars; }
+
+bool GameManager::isGameOwned() { return gameOwned; }
+void GameManager::setGameOwned(bool owned) {
+  gameOwned = owned;
+  userPrefs->setBoolForKey(Keys::GAME_OWNED, gameOwned);
+}
+
+bool GameManager::getBillingConnected() { return billingConnected; }
+void GameManager::setBillingConnected(bool connected) { billingConnected = connected; }
 
 }  // namespace modules

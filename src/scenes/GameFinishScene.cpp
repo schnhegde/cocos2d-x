@@ -3,6 +3,7 @@
 #include "../data/Config.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "GameScene.h"
 #include "LevelSelect.h"
 #include "MainMenu.h"
@@ -15,6 +16,7 @@ using cocos2d::ui::Text;
 using data::Config;
 using modules::GameManager;
 using modules::UiUtil;
+using modules::SoundUtil;
 using std::string;
 
 namespace scenes {
@@ -73,7 +75,7 @@ void GameFinishScene::addHeaderLayout() {
   headerBg->setBackGroundImage("./cutout", Widget::TextureResType::PLIST);
   headerBg->setBackGroundImageScale9Enabled(true);
 
-  string titleString = true ? "Level Complete" : "Level Complete";
+  string titleString = starCount <= 0 ? "Level Failed" : "Level Complete";
   Text* title = Text::create(titleString, Config::FONT_FILE, 40);
   title->enableOutline(Color4B::BLACK, 1);
 
@@ -195,6 +197,7 @@ void GameFinishScene::addButtonsLayout() {
 
 void GameFinishScene::CBBtnHome(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(MainMenu::createScene());
   }
 }
@@ -202,14 +205,16 @@ void GameFinishScene::CBBtnHome(Ref* pSender, Widget::TouchEventType type) {
 void GameFinishScene::CBBtnLevelSelect(Ref* pSender,
                                        Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(LevelSelect::createScene());
   }
 }
 
 void GameFinishScene::CBBtnPlay(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(
-        GameScene::createScene(GameManager::getInstance()->getCurrentLevel()));
+    GameScene::createScene(GameManager::getInstance()->getCurrentLevel()));
   }
 }
 

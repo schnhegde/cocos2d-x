@@ -14,6 +14,9 @@ class Events {
   static const char REWARDED_VIDEO_COMPLETED[];
   static const char NO_VIDEOS[];
   static const char REWARDED_VIDEO_CANCELLED[];
+
+  static const char ADS_SHOWING[];
+  static const char ADS_CLOSED[];
 };
 }  // namespace data
 

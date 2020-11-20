@@ -5,9 +5,11 @@
 #include "../data/Config.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "./GameScene.h"
 #include "./MainMenu.h"
 
+using modules::SoundUtil;
 using cocos2d::Color4B;
 using cocos2d::Director;
 using cocos2d::Size;
@@ -169,6 +171,7 @@ Layout* LevelSelect::createLevelButton(int levelNo) {
 
 void LevelSelect::CBBtnLevel(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     Button* buttonClicked = reinterpret_cast<Button*>(pSender);
     int levelNo = stoi(buttonClicked->getTitleText());
     UiUtil::transitionFade(GameScene::createScene(levelNo));
@@ -177,12 +180,14 @@ void LevelSelect::CBBtnLevel(Ref* pSender, Widget::TouchEventType type) {
 
 void LevelSelect::CBBtnBack(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(MainMenu::createScene());
   }
 }
 
 void LevelSelect::CBPagePrevious(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     startValue -= 16;
     if (startValue == 1) {
       previousButton->setVisible(false);
@@ -196,6 +201,7 @@ void LevelSelect::CBPagePrevious(Ref* pSender, Widget::TouchEventType type) {
 
 void LevelSelect::CBPageNext(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     startValue += 16;
     if (startValue == 625) {
       nextButton->setVisible(false);

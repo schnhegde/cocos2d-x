@@ -1,6 +1,6 @@
 #include <jni.h>
 #include <stdio.h>
-#include <string.h>
+#include <string>
 
 #include "platform/android/jni/JniHelper.h"
 // #include "client/linux/handler/exception_handler.h"
@@ -10,6 +10,8 @@
 // #include "data/Globals.h"
 // #include "models/User.h"
 #include "modules/EventUtils.h"
+#include "modules/GameManager.h"
+#include "cocos2d.h"
 
 #define LOG_TAG "Platform_Android"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -27,7 +29,18 @@ void initAds() {
   methodInfo.env->DeleteLocalRef(methodInfo.classID);
 }
 
-bool isRewardedAdAvailable(string app) {
+void openFeedbackEmail() {
+  cocos2d::JniMethodInfo methodInfo;
+
+  if (!cocos2d::JniHelper::getStaticMethodInfo(
+          methodInfo, "org/cocos2dx/cpp/AppActivity", "openFeedbackEmail", "()V"))
+    return;
+
+  methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
+  methodInfo.env->DeleteLocalRef(methodInfo.classID);
+}
+
+bool isRewardedAdAvailable() {
   cocos2d::JniMethodInfo methodInfo;
   bool ret = false;
 
@@ -36,10 +49,8 @@ bool isRewardedAdAvailable(string app) {
                                                "isRewardedAdAvailable", "()Z"))
     return false;
 
-  jstring appName = methodInfo.env->NewStringUTF(app.c_str());
-
   ret = methodInfo.env->CallStaticBooleanMethod(methodInfo.classID,
-                                                methodInfo.methodID, appName);
+                                                methodInfo.methodID);
   methodInfo.env->DeleteLocalRef(methodInfo.classID);
 
   return ret;
@@ -50,6 +61,18 @@ void showRewardedAd() {
 
   if (!cocos2d::JniHelper::getStaticMethodInfo(
           methodInfo, "org/cocos2dx/cpp/AppActivity", "showRewardedAd", "()V"))
+    return;
+
+  methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
+  methodInfo.env->DeleteLocalRef(methodInfo.classID);
+}
+
+void purchase() {
+  cocos2d::JniMethodInfo methodInfo;
+
+  if (!cocos2d::JniHelper::getStaticMethodInfo(
+          methodInfo, "org/cocos2dx/cpp/AppActivity", "purchase",
+          "()V"))
     return;
 
   methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
@@ -84,4 +107,35 @@ void Java_org_cocos2dx_cpp_AppActivity_rewardVideoCancelled() {
             data::Events::REWARDED_VIDEO_CANCELLED);
       });
 }
+
+void Java_org_cocos2dx_cpp_IAPPlugin_nativeConnectedEvent(JNIEnv *env,
+                                                          jclass jclazz,
+                                                          jboolean connected) {
+  cocos2d::Director::getInstance()
+      ->getScheduler()
+      ->performFunctionInCocosThread([=]() {
+        modules::GameManager::getInstance()->setBillingConnected(static_cast<bool>(connected));
+      });
+}
+
+void Java_org_cocos2dx_cpp_IAPPlugin_nativePurchaseEvent(JNIEnv *env,
+                                                          jclass jclazz,
+                                                          jboolean purchased) {
+  cocos2d::Director::getInstance()
+      ->getScheduler()
+      ->performFunctionInCocosThread([=]() {
+        modules::GameManager::getInstance()->setGameOwned(static_cast<bool>(purchased));
+      });
+}
+
+void Java_org_cocos2dx_cpp_IAPPlugin_nativeOwnedEvent(JNIEnv *env,
+                                                          jclass jclazz,
+                                                          jboolean owned) {
+  cocos2d::Director::getInstance()
+      ->getScheduler()
+      ->performFunctionInCocosThread([=]() {
+        modules::GameManager::getInstance()->setGameOwned(static_cast<bool>(owned));
+      });
+}
+
 }
