@@ -1,6 +1,8 @@
 #include "Entity.h"
 
 #include "../data/Config.h"
+#include "../data/Events.h"
+#include "../modules/EventUtils.h"
 
 using cocos2d::FiniteTimeAction;
 using cocos2d::MoveTo;
@@ -61,6 +63,10 @@ void Entity::setTile(Tile* tile, Vec2 index, string datum, bool collision) {
     auto action1 = MoveTo::create(0.1, pos);
     actions.pushBack(action1);
   }
+  auto animationDone = cocos2d::CallFunc::create([](){
+    modules::EventUtils::dispatchEvent(data::Events::ANIMATION_COMPLETE);
+  });
+  actions.pushBack(animationDone);
   auto seq = Sequence::create(actions);
   runAction(seq);
 }

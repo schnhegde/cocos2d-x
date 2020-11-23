@@ -16,4 +16,10 @@ const char Events::REWARDED_VIDEO_CANCELLED[] = "REWARDED_VIDEO_CANCELLED";
 const char Events::ADS_SHOWING[] = "ADS_SHOWING";
 const char Events::ADS_CLOSED[] = "ADS_CLOSED";
 
+const char Events::GAME_PURCHASED[] = "GAME_PURCHASED";
+
+const char Events::ANIMATION_COMPLETE[] = "ANIMATION_COMPLETE";
+
+const char Events::PAUSE_CLOSED[] = "PAUSE_CLOSED";
+
 }  // namespace data

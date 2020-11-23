@@ -38,6 +38,7 @@ list(APPEND GAME_SOURCE
      src/views/Tile.cpp
      src/views/Grid.cpp
      src/views/Entity.cpp
+     src/scenes/SplashScene.cpp
      src/scenes/MainMenu.cpp
      src/scenes/GameFinishScene.cpp
      src/scenes/GameScene.cpp
@@ -63,6 +64,7 @@ list(APPEND GAME_HEADER
      src/views/Tile.h
      src/views/Grid.h
      src/views/Entity.h
+     src/scenes/SplashScene.h
      src/scenes/MainMenu.h
      src/scenes/GameFinishScene.h
      src/scenes/GameScene.h

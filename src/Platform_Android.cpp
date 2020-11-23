@@ -11,6 +11,8 @@
 // #include "models/User.h"
 #include "modules/EventUtils.h"
 #include "modules/GameManager.h"
+#include "modules/EventUtils.h"
+#include "data/Events.h"
 #include "cocos2d.h"
 
 #define LOG_TAG "Platform_Android"
@@ -47,6 +49,22 @@ bool isRewardedAdAvailable() {
   if (!cocos2d::JniHelper::getStaticMethodInfo(methodInfo,
                                                "org/cocos2dx/cpp/AppActivity",
                                                "isRewardedAdAvailable", "()Z"))
+    return false;
+
+  ret = methodInfo.env->CallStaticBooleanMethod(methodInfo.classID,
+                                                methodInfo.methodID);
+  methodInfo.env->DeleteLocalRef(methodInfo.classID);
+
+  return ret;
+}
+
+bool isTablet() {
+  cocos2d::JniMethodInfo methodInfo;
+  bool ret = false;
+
+  if (!cocos2d::JniHelper::getStaticMethodInfo(methodInfo,
+                                               "org/cocos2dx/cpp/AppActivity",
+                                               "isTablet", "()Z"))
     return false;
 
   ret = methodInfo.env->CallStaticBooleanMethod(methodInfo.classID,
@@ -125,6 +143,7 @@ void Java_org_cocos2dx_cpp_IAPPlugin_nativePurchaseEvent(JNIEnv *env,
       ->getScheduler()
       ->performFunctionInCocosThread([=]() {
         modules::GameManager::getInstance()->setGameOwned(static_cast<bool>(purchased));
+        modules::EventUtils::dispatchEvent(data::Events::GAME_PURCHASED);
       });
 }
 

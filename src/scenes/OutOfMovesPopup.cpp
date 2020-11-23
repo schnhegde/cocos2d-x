@@ -66,6 +66,8 @@ namespace scenes {
     buttonsLayout->addChild(cancelButton);
     buttonsLayout->addChild(watchButton);
     buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+    messageLayout->setScale(Config::DSP_SCALE);
+    buttonsLayout->setScale(Config::DSP_SCALE);
     addChild(messageLayout);
     addChild(buttonsLayout);
   }

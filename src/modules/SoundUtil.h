@@ -20,7 +20,7 @@ class SoundUtil {
   void playEfxGameWon();
   void playEfxGameLost();
   void playEfxWalk();
-  void playEfxBoxPush();
+  void playEfxSceneChange();
   void playEfxBg();
   void updateIsSoundOff();
   void stopSound();

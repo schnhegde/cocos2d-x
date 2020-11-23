@@ -11,6 +11,7 @@ extern "C" bool isRewardedAdAvailable();
 extern "C" void showRewardedAd();
 extern "C" void openFeedbackEmail();
 extern "C" void purchase();
+extern "C" bool isTablet();
 #endif
 
 #endif  // SRC_PLATFORMINCLUDES_H_

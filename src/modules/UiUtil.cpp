@@ -1,6 +1,7 @@
 #include "UiUtil.h"
 
 #include "../data/Config.h"
+#include "SoundUtil.h"
 
 using cocos2d::Color3B;
 using cocos2d::Color4B;
@@ -54,6 +55,7 @@ void UiUtil::transitionFade(cocos2d::Scene* scene) {
       transition = TransitionSlideInT::create(time, scene);
       break;
   }
+  SoundUtil::getInstance()->playEfxSceneChange();
   Director::getInstance()->replaceScene(transition);
 }
 

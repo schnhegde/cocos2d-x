@@ -95,6 +95,7 @@ void MainMenu::addHeaderLayout() {
   textMargin.left = stars_text->getContentSize().width * 0.2;
   stars_text->getLayoutParameter()->setMargin(textMargin);
 
+  starBg->setScale(Config::DSP_SCALE);
   headerLayout->addChild(starBg);
   headerLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   mainLayout->addChild(headerLayout);
@@ -121,6 +122,7 @@ void MainMenu::addLogoLayout() {
   logoLayout->addChild(logoBg);
 
   logoLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  logoLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(logoLayout);
 }
 
@@ -159,6 +161,8 @@ void MainMenu::addButtonsLayout() {
   playBg->addChild(playButton);
   playBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  playBg->setScale(Config::DSP_SCALE);
+  settingsBg->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(playBg);
   buttonsLayout->addChild(settingsBg);
   buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);

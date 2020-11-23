@@ -13,12 +13,13 @@ class WatchVideoPopup : public CommonLayout {
     CommonLayout* buttonsLayout;
     CommonLayout* messageLayout;
     std::string reward;
+    int rewardAmount;
     void createView();
     void CBBtnCancel(Ref* sender, Widget::TouchEventType type);
     void CBBtnWatch(Ref* sender, Widget::TouchEventType type);
     void swallowTouches();
   public:
-    static WatchVideoPopup* createPopup(std::string reward);
+    static WatchVideoPopup* createPopup(std::string reward, int rewardAmount = 1);
     CREATE_FUNC(WatchVideoPopup);
     virtual void onEnter();
 };

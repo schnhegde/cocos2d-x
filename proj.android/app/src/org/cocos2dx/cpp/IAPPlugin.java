@@ -11,6 +11,8 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeParams;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchaseHistoryRecord;
 import com.android.billingclient.api.PurchaseHistoryResponseListener;
@@ -44,7 +46,6 @@ public class IAPPlugin implements PurchasesUpdatedListener, BillingClientStateLi
     }
 
     void handlePurchase(Purchase purchase) {
-        Log.d("{billing}", purchase.toString());
         nativePurchaseEvent(true);
     }
 
@@ -105,7 +106,11 @@ public class IAPPlugin implements PurchasesUpdatedListener, BillingClientStateLi
     @Override
     public void onPurchaseHistoryResponse(@NonNull BillingResult billingResult, @Nullable List<PurchaseHistoryRecord> list) {
         if (list != null && list.size() > 0) {
-            nativeOwnedEvent(true);
+            String h = list.get(0).getSku();
+            int g = h.compareTo("buy_game");
+            if (g == 0) {
+                nativeOwnedEvent(true);
+            }
         }
     }
 }

@@ -35,6 +35,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.json.JSONObject;
 
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
@@ -58,6 +59,8 @@ import com.vinaykumar.sokoban.R;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static org.cocos2dx.lib.Cocos2dxHelper.getActivity;
 
 
 public class AppActivity extends Cocos2dxActivity {
@@ -218,6 +221,16 @@ public class AppActivity extends Cocos2dxActivity {
 
     }
 
+    public static boolean isTablet() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        float yInches= metrics.heightPixels/metrics.ydpi;
+        float xInches= metrics.widthPixels/metrics.xdpi;
+        double diagonalInches = Math.sqrt(xInches*xInches + yInches*yInches);
+        return (diagonalInches>=6.5);
+    }
+
     public static void initAds() {
         instance.runOnUiThread(new Runnable() {
             @Override
@@ -225,7 +238,7 @@ public class AppActivity extends Cocos2dxActivity {
                 MobileAds.initialize(instance, new OnInitializationCompleteListener() {
                     @Override
                     public void onInitializationComplete(InitializationStatus initializationStatus) {
-                        List<String> testDeviceIds = Arrays.asList("EAE7CE0472F02F7A2DE96560259168BB");
+                        List<String> testDeviceIds = Arrays.asList("EAE7CE0472F02F7A2DE96560259168BB", "355C096D244FC2022B5747DAC070182A");
                         RequestConfiguration configuration =
                                 new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
                         MobileAds.setRequestConfiguration(configuration);

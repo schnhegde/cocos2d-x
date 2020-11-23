@@ -9,9 +9,10 @@ using modules::UiUtil;
 using modules::SoundUtil;
 
 namespace scenes {
-  WatchVideoPopup* WatchVideoPopup::createPopup(std::string reward) {
+  WatchVideoPopup* WatchVideoPopup::createPopup(std::string reward, int rewardAmount) {
     auto popup =  WatchVideoPopup::create();
     popup->reward = reward;
+    popup->rewardAmount = rewardAmount;
     return popup;
   }
 
@@ -44,7 +45,7 @@ namespace scenes {
     messageLayout->setLayoutType(CommonLayout::Type::HORIZONTAL);
     messageLayout->setContentSize(Size(popupSize.width * 0.9, popupSize.height * 0.4));
     char buff[200];
-    snprintf(buff, sizeof(buff), "Out of %s? Watch an ad and get +1 %s.", reward.c_str(), reward.c_str());
+    snprintf(buff, sizeof(buff), "Out of %s? Watch an ad and get +%d %s.", reward.c_str(), rewardAmount, reward.c_str());
     auto messageText = cocos2d::ui::Text::create(is_ad_available ? buff : "Ads not available, try later", Config::FONT_FILE, 26);
     messageText->enableOutline(cocos2d::Color4B::BLACK, 1);
     messageLayout->addChild(messageText);
@@ -64,6 +65,8 @@ namespace scenes {
       buttonsLayout->addChild(watchButton);
     }
     buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+    buttonsLayout->setScale(Config::DSP_SCALE);
+    messageLayout->setScale(Config::DSP_SCALE);
     addChild(messageLayout);
     addChild(buttonsLayout);
   }

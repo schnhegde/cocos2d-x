@@ -17,6 +17,11 @@ class Events {
 
   static const char ADS_SHOWING[];
   static const char ADS_CLOSED[];
+
+  static const char GAME_PURCHASED[];
+
+  static const char ANIMATION_COMPLETE[];
+  static const char PAUSE_CLOSED[];
 };
 }  // namespace data
 

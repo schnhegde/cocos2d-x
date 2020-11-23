@@ -49,7 +49,7 @@ class Grid : public Node, public EventListenerManager {
   bool boxMoved;
   void createBgTiles();
   void handleUndo(EventCustom* event);
-  void showCompletePopup();
+  void checkPuzzleComplete(EventCustom* event);
   void showNoMovesPopup();
   bool checkMoves();
   bool checkPuzzle();

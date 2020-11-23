@@ -66,6 +66,18 @@ bool GameScene::init() {
   return true;
 }
 
+void GameScene::addBackButtonListener() {
+  backButtonListener = cocos2d::EventListenerKeyboard::create();
+  backButtonListener->onKeyReleased = CC_CALLBACK_2(GameScene::onKeyReleased, this);
+  cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(backButtonListener, this);
+}
+
+void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event) {
+  if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+    CBBtnPause(nullptr, Widget::TouchEventType::ENDED);
+  }
+}
+
 void GameScene::loadPlistFile() {
   SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
   frameCache->addSpriteFramesWithFile("GameScene.plist");
@@ -80,6 +92,7 @@ void GameScene::initEventStrings() {
   EventListenerManager::eventStrs.push_back(Events::ADS_CLOSED);
   EventListenerManager::eventStrs.push_back(Events::REWARDED_VIDEO_COMPLETED);
   EventListenerManager::eventStrs.push_back(Events::REWARDED_VIDEO_CANCELLED);
+  EventListenerManager::eventStrs.push_back(Events::PAUSE_CLOSED);
 }
 
 void GameScene::initEventHandlers() {
@@ -99,6 +112,16 @@ void GameScene::initEventHandlers() {
       CC_CALLBACK_1(GameScene::rewardedCompleted, this));
   EventListenerManager::eventHandlers.push_back(
       CC_CALLBACK_1(GameScene::rewardedCancelled, this));
+  EventListenerManager::eventHandlers.push_back(
+      CC_CALLBACK_1(GameScene::pauseClosed, this));
+}
+
+void GameScene::pauseClosed(EventCustom* event) {
+  if (pausePopup != nullptr) {
+    pausePopup->removeFromParent();
+    pausePopup = nullptr;
+    addBackButtonListener();
+  }
 }
 
 void GameScene::rewardedCompleted(EventCustom* event) {
@@ -122,8 +145,8 @@ void GameScene::rewardedCompleted(EventCustom* event) {
     break;
     default:
     case PossibleRewards::UNDO:
-      messageString = "Hurray! you got +1 undo";
-      undoCount++;
+      messageString = "Hurray! you got +5 undo";
+      undoCount += Config::REWARDED_UNDO_COUNT;
       gm->setUndoCount(undoCount);
     break;
   }
@@ -142,8 +165,9 @@ void GameScene::refreshButtons() {
 
 void GameScene::rewardedCancelled(EventCustom* event) {
   if (currentPossibleReward == GameScene::PossibleRewards::MOVES) {
+    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(backButtonListener);
     gameFinished = true;
-    addChild(GameFinishScene::createScene(moveCount), 10);
+    addChild(GameFinishScene::createScene(moveCount, levelNo), 10);
   } else {
     string messageString = "Oops! watch the full video for rewards";
     auto messagePopup = MessagePopup::createPopup(messageString);
@@ -175,8 +199,9 @@ void GameScene::handleGameComplete(EventCustom* event) {
     gsm->setCurrentLevel(nextLevel);
   }
   // unScheduleGameTimer();
+  cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(backButtonListener);
   gameFinished = true;
-  addChild(GameFinishScene::createScene(moveCount, starCount), 10);
+  addChild(GameFinishScene::createScene(moveCount, levelNo, starCount), 10);
 }
 
 void GameScene::handleMoveCompleted(EventCustom* event) {
@@ -209,6 +234,8 @@ void GameScene::handleAdsClosed(EventCustom* event) {}
 
 void GameScene::onEnter() {
   Scene::onEnter();
+  pausePopup = nullptr;
+  addBackButtonListener();
   gameFinished = false;
   moveCount = 0;
   levelData = LevelLoader::getLevelData(levelNo);
@@ -251,13 +278,15 @@ void GameScene::onEnter() {
 
   int current_max_level = GameManager::getInstance()->getCurrentLevel();
   if (isTutorial || current_max_level <= 3) {
-    std::string messageText = messages[current_max_level - 1];
-    tutorial_text = Text::create(messageText, Config::FONT_FILE, 30);
-    tutorial_text->enableOutline(cocos2d::Color4B::BLACK, 1);
-    tutorial_text->setPositionNormalized(cocos2d::Vec2(0.5, 0.2));
-    tutorial_text->setTextHorizontalAlignment(cocos2d::TextHAlignment::CENTER);
-    tutorial_text->setTextVerticalAlignment(cocos2d::TextVAlignment::CENTER);
-    addChild(tutorial_text, 10);
+    if (current_max_level <= 3) {
+      std::string messageText = messages[current_max_level - 1];
+      tutorial_text = Text::create(messageText, Config::FONT_FILE, 30);
+      tutorial_text->enableOutline(cocos2d::Color4B::BLACK, 1);
+      tutorial_text->setPositionNormalized(cocos2d::Vec2(0.5, 0.2));
+      tutorial_text->setTextHorizontalAlignment(cocos2d::TextHAlignment::CENTER);
+      tutorial_text->setTextVerticalAlignment(cocos2d::TextVAlignment::CENTER);
+      addChild(tutorial_text, 10);
+    }
     startTutorial();
   }
 }
@@ -410,6 +439,7 @@ void GameScene::addHeaderLayout() {
   headerLayout->addChild(pauseButton);
 
   headerLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  headerLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(headerLayout);
 }
 
@@ -433,8 +463,8 @@ void GameScene::addGameLayout() {
   this->addChild(grid, 7);
   Size gameBgSize = gameBg->getContentSize();
   gameBg->setScale9Enabled(true);
-  grid->setPosition(Vec2(mainSize.width / 2, mainSize.height / 2.40));
-  gameBg->setPosition(Vec2(mainSize.width / 2, mainSize.height / 2.12));
+  grid->setPosition(Vec2(mainSize.width / 2, (mainSize.height / 2) - (Config::TILE_SIZE)));
+  gameBg->setPosition(Vec2(mainSize.width / 2, mainSize.height / 2));
   this->addChild(gameBg, 2);
   gameLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   mainLayout->addChild(gameLayout);
@@ -485,8 +515,23 @@ void GameScene::addButtonsLayout() {
   undoBg->addChild(undoButton);
   undoBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  retryButton = UiUtil::createButton("retry_button.png", "", 10, false);
+  retryButton->addTouchEventListener(CC_CALLBACK_2(GameScene::CBBtnRetry, this));
+  Size retrySize = retryButton->getContentSize();
+  CommonLayout* retryBg = CommonLayout::create();
+  retryBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
+  retryBg->setContentSize(Size(undoSize.width * 1.3, undoSize.height * 1.3));
+  retryBg->setBackGroundImage("./cutout", Widget::TextureResType::PLIST);
+  retryBg->setBackGroundImageScale9Enabled(true);
+  retryBg->addChild(retryButton);
+  retryBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+
+  solutionBg->setScale(Config::DSP_SCALE);
+  undoBg->setScale(Config::DSP_SCALE);
+  retryBg->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(solutionBg);
   buttonsLayout->addChild(undoBg);
+  buttonsLayout->addChild(retryBg);
   buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   mainLayout->addChild(buttonsLayout);
 }
@@ -541,7 +586,7 @@ void GameScene::showMove(const char move) {
 
 void GameScene::animateHand(int x, int y) {
   handSprite = Sprite::create("hand.png");
-  // handSprite->setScale(Config::DSP_SCALE);
+  handSprite->setScale(Config::DSP_SCALE);
   Size visibleSize = Director::getInstance()->getVisibleSize();
   int startX = visibleSize.width / 2 - ((x * visibleSize.width) / 4);
   int startY = visibleSize.height / 2 - ((y * visibleSize.height) / 6);
@@ -576,17 +621,26 @@ void GameScene::CBBtnUndo(Ref* sender, Widget::TouchEventType type) {
         timerPaused = true;
         isUndoReward = true;
         currentPossibleReward = GameScene::PossibleRewards::UNDO;
-        auto popup = WatchVideoPopup::createPopup("undo");
+        auto popup = WatchVideoPopup::createPopup("undo", 5);
         addChild(popup, 10);
       }
     }
   }
 }
 
+void GameScene::CBBtnRetry(Ref* sender, Widget::TouchEventType type) {
+  if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
+    UiUtil::transitionFade(GameScene::createScene(levelNo));
+  }
+}
+
 void GameScene::CBBtnPause(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
     SoundUtil::getInstance()->playEfxBtnTouched();
-    UiUtil::pushFade(this, Settings::createScene(true));
+    cocos2d::Director::getInstance()->getEventDispatcher()->removeEventListener(backButtonListener);
+    pausePopup = (Settings*)Settings::createScene(true);
+    UiUtil::pushFade(this, pausePopup);
   }
 }
 

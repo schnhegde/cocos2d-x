@@ -3,6 +3,8 @@
 #include <string>
 
 #include "../data/Config.h"
+#include "../data/Events.h"
+#include "../modules/EventUtils.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
 #include "../modules/SoundUtil.h"
@@ -49,6 +51,28 @@ bool Settings::init() {
   return true;
 }
 
+void Settings::addBackButtonListener() {
+  auto listener = cocos2d::EventListenerKeyboard::create();
+  listener->onKeyReleased = CC_CALLBACK_2(Settings::onKeyReleased, this);
+  cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+}
+
+void Settings::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event) {
+  if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+    CBBtnBack(nullptr, Widget::TouchEventType::ENDED);
+  }
+}
+
+void Settings::swallowTouches() {
+    auto swallowTouchListener = cocos2d::EventListenerTouchOneByOne::create();
+    swallowTouchListener->setSwallowTouches(true);
+    swallowTouchListener->onTouchBegan = [](cocos2d::Touch* touch, cocos2d::Event* event) {
+      return true;  // if you are consuming it
+    };
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(swallowTouchListener,
+      this);
+  }
+
 void Settings::loadPlistFile() {
   // SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
   // frameCache->addSpriteFramesWithFile("Settings.plist");
@@ -56,6 +80,9 @@ void Settings::loadPlistFile() {
 
 void Settings::onEnter() {
   Scene::onEnter();
+  swallowTouches();
+  addBackButtonListener();
+  initListeners(this);
   Size screenSize = Director::getInstance()->getVisibleSize();
   mainLayout = CommonLayout::create();
   mainLayout->setLayoutType(CommonLayout::Type::VERTICAL);
@@ -97,6 +124,7 @@ void Settings::addHeaderLayout() {
   Margin backMargin = backButton->getLayoutParameter()->getMargin();
   backMargin.left = mainSize.width * 0.025;
   backButton->getLayoutParameter()->setMargin(backMargin);
+  headerLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(headerLayout);
 }
 
@@ -134,6 +162,8 @@ void Settings::addButtonsLayout() {
     playBg->addChild(playButton);
     playBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+    homeBg->setScale(Config::DSP_SCALE);
+    playBg->setScale(Config::DSP_SCALE);
     navButtonLayout->addChild(homeBg);
     navButtonLayout->addChild(playBg);
     navButtonLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -175,6 +205,8 @@ void Settings::addButtonsLayout() {
   musicBg->addChild(musicButton);
   musicBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  soundBg->setScale(Config::DSP_SCALE);
+  musicBg->setScale(Config::DSP_SCALE);
   toggleLayout->addChild(soundBg);
   toggleLayout->addChild(musicBg);
   toggleLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -193,6 +225,7 @@ void Settings::addButtonsLayout() {
     buyBg->addChild(buyButton);
     buyBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+    buyBg->setScale(Config::DSP_SCALE);
     buttonsLayout->addChild(buyBg);
   }
 
@@ -207,6 +240,7 @@ void Settings::addButtonsLayout() {
   feedBackBg->addChild(feedbackButton);
   feedBackBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  feedBackBg->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(feedBackBg);
 
   buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -235,13 +269,13 @@ void Settings::addMessageLayout() {
       "Please feel free to click on feedback button above\nand let us know if you faced any issue."
       "\n\nSelect your email client after clicking on feedback.";
   std::string message = GameManager::getInstance()->isGameOwned() ? message2 : message1;
-  Text* messageText = Text::create(message, Config::FONT_FILE, 20);
+  messageText = Text::create(message, Config::FONT_FILE, 20);
   messageText->enableOutline(Color4B::BLACK, 1);
   messageText->setTextVerticalAlignment(TextVAlignment::CENTER);
   messageText->setTextHorizontalAlignment(TextHAlignment::CENTER);
+  messageText->setScale(Config::DSP_SCALE);
   messageBg->addChild(messageText);
   messageBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
-
   messageLayout->addChild(messageBg);
 
   messageLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -255,7 +289,7 @@ void Settings::CBBtnBack(Ref* pSender, Widget::TouchEventType type) {
     if (!isPaused) {
       UiUtil::transitionFade(MainMenu::createScene());
     } else {
-      UiUtil::popFade(getParent());
+      modules::EventUtils::dispatchEvent(data::Events::PAUSE_CLOSED);
     }
   }
 }
@@ -299,10 +333,34 @@ void Settings::CBBtnMusic(Ref* pSender, Widget::TouchEventType type) {
   }
 }
 
+void Settings::initEventStrings() {
+  EventListenerManager::eventStrs.push_back(data::Events::GAME_PURCHASED);
+}
+
+void Settings::initEventHandlers() {
+  EventListenerManager::eventHandlers.push_back(
+      CC_CALLBACK_1(Settings::handleGamePurchased, this));
+}
+
+void Settings::handleGamePurchased(EventCustom* event) {
+    buyButton->getParent()->removeFromParent();
+    buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+    std::string message1 =
+      "Thanks for playing our game!\n\n"
+      "Please feel free to click on feedback button above\nand let us know if you faced any issue."
+      "\n\nSelect your email client after clicking on feedback.";
+  std::string message2 =
+      "Thanks for buying a copy of our game!\n\n"
+      "Please feel free to click on feedback button above\nand let us know if you faced any issue."
+      "\n\nSelect your email client after clicking on feedback.";
+  std::string message = GameManager::getInstance()->isGameOwned() ? message2 : message1;
+  messageText->setString(message);
+}
+
 void Settings::CBBtnBuy(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
     SoundUtil::getInstance()->playEfxBtnTouched();
-    purchase("buy_game");
+    purchase();
   }
 }
 

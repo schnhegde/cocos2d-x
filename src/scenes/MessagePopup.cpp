@@ -55,6 +55,8 @@ namespace scenes {
         CC_CALLBACK_2(MessagePopup::CBBtnOk, this));
     buttonsLayout->addChild(okButton);
     buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+    buttonsLayout->setScale(Config::DSP_SCALE);
+    messageLayout->setScale(Config::DSP_SCALE);
     addChild(messageLayout);
     addChild(buttonsLayout);
   }
