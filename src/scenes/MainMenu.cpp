@@ -201,7 +201,7 @@ void MainMenu::CBBtnPrivacy(Ref* sender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
     SoundUtil::getInstance()->playEfxBtnTouched();
     cocos2d::Application::getInstance()->openURL(
-          "https://privacypolicyblockthat.blogspot.com/2020/05/sokoban-privacy-policy.html");
+          "https://schnhegde.github.io/sokoban.html");
   }
 }
 

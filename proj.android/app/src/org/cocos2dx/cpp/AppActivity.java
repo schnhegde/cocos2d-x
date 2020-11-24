@@ -35,6 +35,7 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.json.JSONObject;
 
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
@@ -215,6 +216,20 @@ public class AppActivity extends Cocos2dxActivity {
                 }
             }
         });
+    }
+
+    public static boolean isTablet() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        instance.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        float yInches= metrics.heightPixels/metrics.ydpi;
+        float xInches= metrics.widthPixels/metrics.xdpi;
+        double diagonalInches = Math.sqrt(xInches*xInches + yInches*yInches);
+        if (diagonalInches>=6.5){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public static String getVersionNumber() {
