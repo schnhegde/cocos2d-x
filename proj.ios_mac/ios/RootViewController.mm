@@ -26,8 +26,12 @@
 
 #import "RootViewController.h"
 #import "cocos2d.h"
+#include "EventUtils.h"
+#include "Events.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
+@interface RootViewController () <GADRewardedAdDelegate>
+@end
 
 @implementation RootViewController
 
@@ -57,11 +61,65 @@
     
     // Set EAGLView as view of RootViewController
     self.view = eaglView;
+    self.rewardedAdLoaded = false;
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+-(void) loadRewardedVideo {
+    self.rewardedAd = [[GADRewardedAd alloc]
+                          initWithAdUnitID:@"ca-app-pub-3940256099942544/1712485313"];
+    GADRequest *request = [GADRequest request];
+     [self.rewardedAd loadRequest:request completionHandler:^(GADRequestError * _Nullable error) {
+       if (error) {
+           self.rewardedAdLoaded = false;
+       } else {
+           self.rewardedAdLoaded = true;
+       }
+     }];
+}
+
+-(void) showRewardedVideo {
+    if (self.rewardedAd.isReady) {
+        [self.rewardedAd presentFromRootViewController:self delegate:self];
+      } else {
+        NSLog(@"Ad wasn't ready");
+      }
+}
+
+/// Tells the delegate that the user earned a reward.
+- (void)rewardedAd:(GADRewardedAd *)rewardedAd userDidEarnReward:(GADAdReward *)reward {
+  // TODO: Reward the user.
+    self.rewardEarned = true;
+}
+
+/// Tells the delegate that the rewarded ad was presented.
+- (void)rewardedAdDidPresent:(GADRewardedAd *)rewardedAd {
+    self.rewardedAdLoaded = false;
+}
+
+/// Tells the delegate that the rewarded ad failed to present.
+- (void)rewardedAd:(GADRewardedAd *)rewardedAd didFailToPresentWithError:(NSError *)error {
+    self.rewardedAdLoaded = false;
+    modules::EventUtils::dispatchEvent(data::Events::REWARDED_VIDEO_CANCELLED);
+}
+
+/// Tells the delegate that the rewarded ad was dismissed.
+- (void)rewardedAdDidDismiss:(GADRewardedAd *)rewardedAd {
+    if (self.rewardEarned) {
+        modules::EventUtils::dispatchEvent(data::Events::REWARDED_VIDEO_COMPLETED);
+        self.rewardEarned = false;
+    } else {
+        modules::EventUtils::dispatchEvent(data::Events::REWARDED_VIDEO_CANCELLED);
+    }
+    [self loadRewardedVideo];
+}
+
+-(BOOL) isRewardedAdLoaded {
+    return self.rewardedAdLoaded;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

@@ -25,9 +25,16 @@
  ****************************************************************************/
 
 #import <UIKit/UIKit.h>
+#include <GoogleMobileAds/GADRewardedAd.h>
+#include <GoogleMobileAds/GADRewardedAdDelegate.h>
 
-@interface RootViewController : UIViewController {
+@interface RootViewController : UIViewController  {
 }
+@property(nonatomic, strong) GADRewardedAd *rewardedAd;
+@property(nonatomic) BOOL rewardedAdLoaded;
+@property(nonatomic) BOOL rewardEarned;
 - (BOOL)prefersStatusBarHidden;
-
+- (void) loadRewardedVideo;
+- (BOOL) isRewardedAdLoaded;
+- (void) showRewardedVideo;
 @end
