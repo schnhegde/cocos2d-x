@@ -1,8 +1,10 @@
 #include "AppDelegate.h"
-
+#include "PlatformIncludes.h"
 #include "modules/LevelLoader.h"
 #include "modules/SoundUtil.h"
+#include "scenes/SplashScene.h"
 #include "scenes/MainMenu.h"
+#include "data/Config.h"
 
 // #define USE_AUDIO_ENGINE 1
 
@@ -18,6 +20,7 @@ using cocos2d::GLViewImpl;
 using cocos2d::Size;
 using modules::LevelLoader;
 using modules::SoundUtil;
+using scenes::SplashScene;
 using scenes::MainMenu;
 
 static Size designResolutionSize = Size(640, 960);
@@ -47,13 +50,16 @@ bool AppDelegate::applicationDidFinishLaunching() {
     director->setOpenGLView(glview);
   }
 
-  director->setDisplayStats(true);
+  director->setDisplayStats(false);
   director->setAnimationInterval(1.0f / 60);
   glview->setDesignResolutionSize(designResolutionSize.width,
                                   designResolutionSize.height,
                                   ResolutionPolicy::FIXED_WIDTH);
   register_all_packages();
-
+  if (isTablet()) {
+    data::Config::DSP_SCALE = 0.7f;
+    data::Config::TILE_SIZE = data::Config::TILE_SIZE * data::Config::DSP_SCALE;
+  }
   FileUtils::getInstance()->addSearchPath("images");
   FileUtils::getInstance()->addSearchPath("audio");
   FileUtils::getInstance()->addSearchPath("fonts");
@@ -61,8 +67,13 @@ bool AppDelegate::applicationDidFinishLaunching() {
   SoundUtil::getInstance();
   LevelLoader::loadLevels();
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+  auto scene = SplashScene::createScene();
+  director->runWithScene(scene);
+#else
   auto scene = MainMenu::createScene();
   director->runWithScene(scene);
+#endif
 
   return true;
 }

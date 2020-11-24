@@ -30,6 +30,9 @@ class LevelSelect : public Scene {
   Button* previousButton;
   vector<Button*> levelButtons;
 
+  void addBackButtonListener();
+  void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+
   void addHeaderLayout();
   void addGridLayout();
   void addButtonsLayout();

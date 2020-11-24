@@ -3,6 +3,7 @@
 #include "../data/Config.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "GameScene.h"
 #include "LevelSelect.h"
 #include "MainMenu.h"
@@ -15,14 +16,16 @@ using cocos2d::ui::Text;
 using data::Config;
 using modules::GameManager;
 using modules::UiUtil;
+using modules::SoundUtil;
 using std::string;
 
 namespace scenes {
 
-Scene* GameFinishScene::createScene(int movesMade, int starCount) {
+Scene* GameFinishScene::createScene(int movesMade, int levelNo, int starCount) {
   auto instance = GameFinishScene::create();
   instance->starCount = starCount;
   instance->movesMade = movesMade;
+  instance->levelNo = levelNo;
   return instance;
 }
 
@@ -41,6 +44,28 @@ bool GameFinishScene::init() {
   return true;
 }
 
+void GameFinishScene::swallowTouches() {
+    auto swallowTouchListener = cocos2d::EventListenerTouchOneByOne::create();
+    swallowTouchListener->setSwallowTouches(true);
+    swallowTouchListener->onTouchBegan = [](cocos2d::Touch* touch, cocos2d::Event* event) {
+      return true;  // if you are consuming it
+    };
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(swallowTouchListener,
+      this);
+  }
+
+void GameFinishScene::addBackButtonListener() {
+  auto listener = cocos2d::EventListenerKeyboard::create();
+  listener->onKeyReleased = CC_CALLBACK_2(GameFinishScene::onKeyReleased, this);
+  cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+}
+
+void GameFinishScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event) {
+  if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+    CBBtnLevelSelect(nullptr, Widget::TouchEventType::ENDED);
+  }
+}
+
 void GameFinishScene::loadPlistFile() {
   // SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
   // frameCache->addSpriteFramesWithFile("GameFinishScene.plist");
@@ -49,6 +74,13 @@ void GameFinishScene::loadPlistFile() {
 
 void GameFinishScene::onEnter() {
   Scene::onEnter();
+  swallowTouches();
+  addBackButtonListener();
+  if (starCount > 0) {
+    SoundUtil::getInstance()->playEfxGameWon();
+  } else {
+    SoundUtil::getInstance()->playEfxGameLost();
+  }
   Size screenSize = Director::getInstance()->getVisibleSize();
   mainLayout = CommonLayout::create();
   mainLayout->setLayoutType(CommonLayout::Type::VERTICAL);
@@ -73,7 +105,7 @@ void GameFinishScene::addHeaderLayout() {
   headerBg->setBackGroundImage("./cutout", Widget::TextureResType::PLIST);
   headerBg->setBackGroundImageScale9Enabled(true);
 
-  string titleString = true ? "Level Complete" : "Level Complete";
+  string titleString = starCount <= 0 ? "Level Failed" : "Level Complete";
   Text* title = Text::create(titleString, Config::FONT_FILE, 40);
   title->enableOutline(Color4B::BLACK, 1);
 
@@ -82,6 +114,7 @@ void GameFinishScene::addHeaderLayout() {
 
   headerLayout->addChild(headerBg);
   headerLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  headerLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(headerLayout);
 }
 
@@ -139,6 +172,7 @@ void GameFinishScene::addDetailLayout() {
   detailLayout->addChild(starsLayout);
   detailLayout->addChild(movesLayout);
   detailLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  detailLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(detailLayout);
 }
 
@@ -161,7 +195,7 @@ void GameFinishScene::addButtonsLayout() {
   homeButton->addTouchEventListener(
       CC_CALLBACK_2(GameFinishScene::CBBtnHome, this));
 
-  auto levelButton = UiUtil::createButton("./button_level", "", 10);
+  auto levelButton = UiUtil::createButton("button_level.png", "", 10, false);
   Size levelSize = levelButton->getContentSize();
   CommonLayout* levelBg = CommonLayout::create();
   levelBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
@@ -174,7 +208,8 @@ void GameFinishScene::addButtonsLayout() {
   levelButton->addTouchEventListener(
       CC_CALLBACK_2(GameFinishScene::CBBtnLevelSelect, this));
 
-  auto playButton = UiUtil::createButton("./button_play", "", 10);
+  string button_string = starCount > 0 ? "./button_play" : "retry_button_big.png";
+  auto playButton = UiUtil::createButton(button_string, "", 10, starCount > 0);
   Size playSize = playButton->getContentSize();
   CommonLayout* playBg = CommonLayout::create();
   playBg->setLayoutType(CommonLayout::Type::HORIZONTAL);
@@ -183,9 +218,17 @@ void GameFinishScene::addButtonsLayout() {
   playBg->setBackGroundImageScale9Enabled(true);
   playBg->addChild(playButton);
   playBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
-  playButton->addTouchEventListener(
+  if (starCount > 0) {
+    playButton->addTouchEventListener(
       CC_CALLBACK_2(GameFinishScene::CBBtnPlay, this));
+  } else {
+      playButton->addTouchEventListener(
+      CC_CALLBACK_2(GameFinishScene::CBBtnReplay, this));
+  }
 
+    homeBg->setScale(Config::DSP_SCALE);
+    levelBg->setScale(Config::DSP_SCALE);
+    playBg->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(homeBg);
   buttonsLayout->addChild(levelBg);
   buttonsLayout->addChild(playBg);
@@ -195,6 +238,7 @@ void GameFinishScene::addButtonsLayout() {
 
 void GameFinishScene::CBBtnHome(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(MainMenu::createScene());
   }
 }
@@ -202,14 +246,24 @@ void GameFinishScene::CBBtnHome(Ref* pSender, Widget::TouchEventType type) {
 void GameFinishScene::CBBtnLevelSelect(Ref* pSender,
                                        Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(LevelSelect::createScene());
   }
 }
 
 void GameFinishScene::CBBtnPlay(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(
-        GameScene::createScene(GameManager::getInstance()->getCurrentLevel()));
+    GameScene::createScene(GameManager::getInstance()->getCurrentLevel()));
+  }
+}
+
+void GameFinishScene::CBBtnReplay(Ref* pSender, Widget::TouchEventType type) {
+  if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
+    UiUtil::transitionFade(
+    GameScene::createScene(levelNo));
   }
 }
 

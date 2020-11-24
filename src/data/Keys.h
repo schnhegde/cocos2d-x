@@ -16,6 +16,7 @@ class Keys {
   static const char TOTAL_STARS[];
 
   static const char TUTORIAL_DONE[];
+  static const char GAME_OWNED[];
 };
 }  // namespace data
 

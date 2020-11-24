@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "21281249877",
+    "firebase_url": "https://sokoban-d3bea.firebaseio.com",
+    "project_id": "sokoban-d3bea",
+    "storage_bucket": "sokoban-d3bea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21281249877:android:7c5059bcc4ec453ed192dc",
+        "android_client_info": {
+          "package_name": "com.vinaykumar.sokoban"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21281249877-f67ghafmqpu6vi4em6f61j9emqnpf4br.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARVmd4yt9ZBYtBost9D4JGmvzaIvynD6s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21281249877-f67ghafmqpu6vi4em6f61j9emqnpf4br.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

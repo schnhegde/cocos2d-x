@@ -20,6 +20,8 @@ class GameManager {
   int totalStars;
   bool isTutorialDone;
   void init();
+  bool billingConnected;
+  bool gameOwned;
 
  public:
   static GameManager* getInstance();
@@ -43,6 +45,12 @@ class GameManager {
 
   void setTutorialDone(bool done);
   bool getTutorialDone();
+
+  void setBillingConnected(bool connected);
+  bool getBillingConnected();
+
+  void setGameOwned(bool owned);
+  bool isGameOwned();
 };
 
 }  // namespace modules

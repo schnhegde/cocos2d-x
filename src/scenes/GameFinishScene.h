@@ -16,6 +16,7 @@ class GameFinishScene : public Scene {
  private:
   int starCount;
   int movesMade;
+  int levelNo;
 
   CommonLayout* mainLayout;
 
@@ -27,16 +28,21 @@ class GameFinishScene : public Scene {
   Button* playButton;
   Button* homeButton;
 
+  void swallowTouches();
+  void addBackButtonListener();
+  void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+
   void addHeaderLayout();
   void addDetailLayout();
   void addButtonsLayout();
   void loadPlistFile();
+  void CBBtnReplay(Ref* pSender, Widget::TouchEventType type);
   void CBBtnHome(Ref* pSender, Widget::TouchEventType type);
   void CBBtnPlay(Ref* pSender, Widget::TouchEventType type);
   void CBBtnLevelSelect(Ref* pSender, Widget::TouchEventType type);
 
  public:
-  static Scene* createScene(int movesMade, int starCount = 0);
+  static Scene* createScene(int movesMade, int levelNo, int starCount = 0);
   virtual bool init();
   virtual void onEnter();
   CREATE_FUNC(GameFinishScene);

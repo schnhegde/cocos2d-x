@@ -5,9 +5,11 @@
 #include "../data/Config.h"
 #include "../modules/GameManager.h"
 #include "../modules/UiUtil.h"
+#include "../modules/SoundUtil.h"
 #include "./GameScene.h"
 #include "./MainMenu.h"
 
+using modules::SoundUtil;
 using cocos2d::Color4B;
 using cocos2d::Director;
 using cocos2d::Size;
@@ -45,8 +47,21 @@ bool LevelSelect::init() {
   return true;
 }
 
+void LevelSelect::addBackButtonListener() {
+  auto listener = cocos2d::EventListenerKeyboard::create();
+  listener->onKeyReleased = CC_CALLBACK_2(LevelSelect::onKeyReleased, this);
+  cocos2d::Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener, this);
+}
+
+void LevelSelect::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event) {
+  if(keyCode == cocos2d::EventKeyboard::KeyCode::KEY_BACK) {
+    CBBtnBack(nullptr, Widget::TouchEventType::ENDED);
+  }
+}
+
 void LevelSelect::onEnter() {
   Scene::onEnter();
+  addBackButtonListener();
   Size screenSize = Director::getInstance()->getVisibleSize();
   mainLayout = CommonLayout::create();
   mainLayout->setLayoutType(CommonLayout::Type::VERTICAL);
@@ -88,6 +103,7 @@ void LevelSelect::addHeaderLayout() {
   Margin backMargin = backButton->getLayoutParameter()->getMargin();
   backMargin.left = mainSize.width * 0.025;
   backButton->getLayoutParameter()->setMargin(backMargin);
+  headerLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(headerLayout);
 }
 
@@ -96,7 +112,8 @@ void LevelSelect::addGridLayout() {
   gridLayout = CommonLayout::create();
   gridLayout->setLayoutType(CommonLayout::Type::VERTICAL);
   gridLayout->setContentSize(Size(mainSize.width, mainSize.height * 0.5));
-  startValue = 1;
+  int currentLevel = GameManager::getInstance()->getCurrentLevel();
+  startValue = ((std::ceil(currentLevel / 16)) * 16) + 1;
 
   for (int i = 0; i < 4; i++) {
     CommonLayout* rowLayout = CommonLayout::create();
@@ -154,7 +171,7 @@ Layout* LevelSelect::createLevelButton(int levelNo) {
         starsLayout->addChild(starImage);
       }
     }
-
+    buttonBg->setScale(Config::DSP_SCALE);
     buttonBg->addChild(levelButton);
   }
   starsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -169,6 +186,7 @@ Layout* LevelSelect::createLevelButton(int levelNo) {
 
 void LevelSelect::CBBtnLevel(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     Button* buttonClicked = reinterpret_cast<Button*>(pSender);
     int levelNo = stoi(buttonClicked->getTitleText());
     UiUtil::transitionFade(GameScene::createScene(levelNo));
@@ -177,12 +195,14 @@ void LevelSelect::CBBtnLevel(Ref* pSender, Widget::TouchEventType type) {
 
 void LevelSelect::CBBtnBack(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(MainMenu::createScene());
   }
 }
 
 void LevelSelect::CBPagePrevious(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     startValue -= 16;
     if (startValue == 1) {
       previousButton->setVisible(false);
@@ -196,6 +216,7 @@ void LevelSelect::CBPagePrevious(Ref* pSender, Widget::TouchEventType type) {
 
 void LevelSelect::CBPageNext(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     startValue += 16;
     if (startValue == 625) {
       nextButton->setVisible(false);
@@ -283,6 +304,8 @@ void LevelSelect::addButtonsLayout() {
   buttonBg_2->addChild(nextButton);
   buttonBg_2->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  buttonBg_1->setScale(Config::DSP_SCALE);
+  buttonBg_2->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(buttonBg_1);
   buttonsLayout->addChild(buttonBg_2);
 

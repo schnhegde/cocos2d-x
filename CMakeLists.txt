@@ -24,6 +24,7 @@ endif()
 # add cross-platforms source files and header files 
 list(APPEND GAME_SOURCE
      src/AppDelegate.cpp
+     src/Platform_Android.cpp
      src/data/Config.cpp
      src/data/Keys.cpp
      src/data/Events.cpp
@@ -37,14 +38,19 @@ list(APPEND GAME_SOURCE
      src/views/Tile.cpp
      src/views/Grid.cpp
      src/views/Entity.cpp
+     src/scenes/SplashScene.cpp
      src/scenes/MainMenu.cpp
      src/scenes/GameFinishScene.cpp
      src/scenes/GameScene.cpp
      src/scenes/LevelSelect.cpp
      src/scenes/Settings.cpp
+     src/scenes/WatchVideoPopup.cpp
+     src/scenes/MessagePopup.cpp
+     src/scenes/OutOfMovesPopup.cpp
      )
 list(APPEND GAME_HEADER
      src/AppDelegate.h
+     src/PlatformIncludes.h
      src/data/Config.h
      src/data/Keys.h
      src/data/Events.h
@@ -58,11 +64,15 @@ list(APPEND GAME_HEADER
      src/views/Tile.h
      src/views/Grid.h
      src/views/Entity.h
+     src/scenes/SplashScene.h
      src/scenes/MainMenu.h
      src/scenes/GameFinishScene.h
      src/scenes/GameScene.h
      src/scenes/LevelSelect.h
      src/scenes/Settings.h
+     src/scenes/WatchVideoPopup.h
+     src/scenes/MessagePopup.h
+     src/scenes/OutOfMovesPopup.h
      )
 
 if(ANDROID)

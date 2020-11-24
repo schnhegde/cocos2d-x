@@ -14,4 +14,6 @@ const char Keys::LEVEL_STARS[] = "LEVEL_STARS_%d";
 const char Keys::TOTAL_STARS[] = "TOTAL_STARS";
 
 const char Keys::TUTORIAL_DONE[] = "TUTORIAL_DONE";
+
+const char Keys::GAME_OWNED[] = "GAME_OWNED";
 }  // namespace data

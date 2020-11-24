@@ -8,6 +8,8 @@
 #include "../modules/UiUtil.h"
 #include "./LevelSelect.h"
 #include "./Settings.h"
+#include "./GameScene.h"
+#include "../PlatformIncludes.h"
 
 using cocos2d::Color4B;
 using cocos2d::Director;
@@ -62,6 +64,7 @@ void MainMenu::onEnter() {
   addHeaderLayout();
   addLogoLayout();
   addButtonsLayout();
+  addVersionLayout();
   mainLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   addChild(mainLayout);
 }
@@ -95,6 +98,7 @@ void MainMenu::addHeaderLayout() {
   textMargin.left = stars_text->getContentSize().width * 0.2;
   stars_text->getLayoutParameter()->setMargin(textMargin);
 
+  starBg->setScale(Config::DSP_SCALE);
   headerLayout->addChild(starBg);
   headerLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   mainLayout->addChild(headerLayout);
@@ -121,6 +125,7 @@ void MainMenu::addLogoLayout() {
   logoLayout->addChild(logoBg);
 
   logoLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  logoLayout->setScale(Config::DSP_SCALE);
   mainLayout->addChild(logoLayout);
 }
 
@@ -131,7 +136,7 @@ void MainMenu::addButtonsLayout() {
   buttonsLayout->setContentSize(Size(mainSize.width, mainSize.height * 0.4));
 
   // TODO(sachin): localization
-  playButton = UiUtil::createButton("./button_blue", "Play", 36);
+  playButton = UiUtil::createButton("./button_blue", "Play", 32);
   playButton->addTouchEventListener(CC_CALLBACK_2(MainMenu::CBBtnPlay, this));
   Size playSize = playButton->getContentSize();
 
@@ -159,11 +164,45 @@ void MainMenu::addButtonsLayout() {
   playBg->addChild(playButton);
   playBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
+  playBg->setScale(Config::DSP_SCALE);
+  settingsBg->setScale(Config::DSP_SCALE);
   buttonsLayout->addChild(playBg);
   buttonsLayout->addChild(settingsBg);
   buttonsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
 
   mainLayout->addChild(buttonsLayout);
+}
+
+void MainMenu::addVersionLayout() {
+  Size mainSize = mainLayout->getContentSize();
+  versionLayout = CommonLayout::create();
+  versionLayout->setLayoutType(CommonLayout::Type::HORIZONTAL);
+  versionLayout->setContentSize(Size(mainSize.width * 0.6, mainSize.height * 0.05));
+
+  auto privacyButton = UiUtil::createButton("", "Privacy Policy", 14);
+  privacyButton->getTitleRenderer()->setColor(cocos2d::Color3B(237,177,142));
+  privacyButton->addTouchEventListener(CC_CALLBACK_2(MainMenu::CBBtnPrivacy, this));
+
+  auto versionText = cocos2d::ui::Text::create(getVersionNumber(), Config::FONT_FILE, 14);
+  versionText->setTextHorizontalAlignment(TextHAlignment::CENTER);
+  versionText->setTextVerticalAlignment(TextVAlignment::CENTER);
+  versionText->setColor(cocos2d::Color3B(237,177,142));
+  versionText->enableOutline(cocos2d::Color4B::BLACK, 1);
+
+  versionLayout->addChild(privacyButton);
+  versionLayout->addChild(versionText);
+
+  versionLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
+  versionLayout->setScale(Config::DSP_SCALE);
+  mainLayout->addChild(versionLayout);
+}
+
+void MainMenu::CBBtnPrivacy(Ref* sender, Widget::TouchEventType type) {
+  if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
+    cocos2d::Application::getInstance()->openURL(
+          "https://privacypolicyblockthat.blogspot.com/2020/05/sokoban-privacy-policy.html");
+  }
 }
 
 void MainMenu::CBBtnPlay(Ref* sender, Widget::TouchEventType type) {
@@ -175,6 +214,7 @@ void MainMenu::CBBtnPlay(Ref* sender, Widget::TouchEventType type) {
 
 void MainMenu::CBBtnSettings(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
+    SoundUtil::getInstance()->playEfxBtnTouched();
     UiUtil::transitionFade(Settings::createScene(false));
   }
 }

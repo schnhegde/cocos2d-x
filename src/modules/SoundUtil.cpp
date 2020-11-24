@@ -21,6 +21,10 @@ void SoundUtil::initSoundEngine() { preloadGameplayEffects(); }
 
 void SoundUtil::preloadGameplayEffects() {
   AudioEngine::preload(Config::EFX_BTN_TOUCH);
+  AudioEngine::preload(Config::EFX_WIN);
+  AudioEngine::preload(Config::EFX_FAIL);
+  AudioEngine::preload(Config::EFX_FOOT);
+  AudioEngine::preload(Config::EFX_SCENE_CHANGE);
   //  soundEngine->preloadBackgroundMusic(Config::EFX_BG);
 }
 
@@ -28,15 +32,17 @@ void SoundUtil::unloadGameplayEffects() { AudioEngine::uncacheAll(); }
 
 void SoundUtil::playEfxBtnTouched() { playSound(Config::EFX_BTN_TOUCH); }
 
-void SoundUtil::playEfxGameWon() { /*playSound(Config::EFX_GAME_WIN);*/
+void SoundUtil::playEfxGameWon() {
+  playSound(Config::EFX_WIN);
 }
-void SoundUtil::playEfxGameLost() { /*playSound(Config::EFX_GAME_LOST);*/
+void SoundUtil::playEfxGameLost() {
+  playSound(Config::EFX_FAIL);
 }
 void SoundUtil::playEfxWalk() {
-  // playSound(Config::EFX_WALK);
+  playSound(Config::EFX_FOOT);
 }
-void SoundUtil::playEfxBoxPush() {
-  // playSound(Config::EFX_BOX_PUSH);
+void SoundUtil::playEfxSceneChange() {
+  playSound(Config::EFX_SCENE_CHANGE);
 }
 void SoundUtil::updateIsSoundOff() {
   isSoundOff = !GameManager::getInstance()->getSoundState();

@@ -8,6 +8,7 @@
 #include "../modules/EventListenerManager.h"
 #include "../views/Grid.h"
 #include "cocos2d.h"
+#include "Settings.h"
 
 using cocos2d::EventCustom;
 using cocos2d::Scene;
@@ -25,16 +26,22 @@ using views::Grid;
 namespace scenes {
 
 class GameScene : public Scene, public EventListenerManager {
+  enum class PossibleRewards {SOLUTION, UNDO, MOVES};
+
  private:
   bool isTutorial;
+  static const char *messages[3];
 
   bool tutorial_level;
   int tutorial_move_count;
   int tutorial_curr_move;
 
+  cocos2d::ui::Text* tutorial_text;
+
   string curr_move;
   int levelNo;
   int maxMoves;
+  int originalMaxMoves;
   int moveCount;
   bool gameFinished;
   int sizeX;
@@ -46,14 +53,19 @@ class GameScene : public Scene, public EventListenerManager {
   string move_text;
   Grid* grid;
   CommonLayout* mainLayout;
+  GameScene::PossibleRewards currentPossibleReward;
 
   CommonLayout* headerLayout;
   CommonLayout* gameLayout;
   CommonLayout* buttonsLayout;
+  Settings* pausePopup;
+
+  cocos2d::EventListenerKeyboard* backButtonListener;
 
   Button* pauseButton;
   Button* solutionButton;
   Button* undoButton;
+  Button* retryButton;
 
   cocos2d::ui::Text* movesText;
 
@@ -67,6 +79,9 @@ class GameScene : public Scene, public EventListenerManager {
   float initialTouchPos[2];
   float currentTouchPos[2];
 
+  void addBackButtonListener();
+  void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
+
   void addHeaderLayout();
   void addGameLayout();
   void addButtonsLayout();
@@ -76,13 +91,17 @@ class GameScene : public Scene, public EventListenerManager {
   void CBBtnPause(Ref* pSender, Widget::TouchEventType type);
   void CBBtnSolution(Ref* pSender, Widget::TouchEventType type);
   void CBBtnUndo(Ref* pSender, Widget::TouchEventType type);
+  void CBBtnRetry(Ref* pSender, Widget::TouchEventType type);
 
+  void pauseClosed(EventCustom* event);
   void handleGameComplete(EventCustom* event);
   void handleMoveCompleted(EventCustom* event);
   void handleGameResumed(EventCustom* event);
   void handleUndoCompleted(EventCustom* event);
   void handleAdsShowing(EventCustom* event);
   void handleAdsClosed(EventCustom* event);
+  void rewardedCompleted(EventCustom* event);
+  void rewardedCancelled(EventCustom* event);
   void CBBtnUp(Ref* target);
   void CBBtnDown(Ref* target);
   void CBBtnLeft(Ref* target);
@@ -92,6 +111,7 @@ class GameScene : public Scene, public EventListenerManager {
   void nextMove();
   void showMove(const char move);
   void animateHand(int x, int y);
+  void refreshButtons();
 
  public:
   static Scene* createScene(int levelNo, bool isTutorial = false);

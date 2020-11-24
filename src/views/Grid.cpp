@@ -45,12 +45,17 @@ void Grid::movePlayer(Vec2 indexInc, bool undo) {
   int sIndex = nextIndex.y * sizeX + nextIndex.x;
   string datum(1, data.at(sIndex));
   bool collision = false;
+  if (indexInc.x == -1) {
+    player->setFlippedX(true);
+  } else if (indexInc.x == 1) {
+    player->setFlippedX(false);
+  }
   if (datum == Tile::TileType.at("WALL")) return;
   if (!(boxes.find(sIndex) == boxes.end())) {
     if (!(moveBox(boxes.at(sIndex), indexInc))) {
       return;
     } else {
-      SoundUtil::getInstance()->playEfxBoxPush();
+      // SoundUtil::getInstance()->playEfxBoxPush();
       collision = true;
       boxMoved = true;
     }
@@ -67,9 +72,6 @@ void Grid::movePlayer(Vec2 indexInc, bool undo) {
   }
   SoundUtil::getInstance()->playEfxWalk();
   player->setTile(tiles.at(sIndex), nextIndex, "", collision);
-  if (checkPuzzle()) {
-    showCompletePopup();
-  }
 }
 
 bool Grid::moveBox(Entity* box, Vec2 inc) {
@@ -91,8 +93,10 @@ bool Grid::moveBox(Entity* box, Vec2 inc) {
   return true;
 }
 
-void Grid::showCompletePopup() {
-  EventUtils::dispatchEvent(Events::GAME_COMPLETED);
+void Grid::checkPuzzleComplete(EventCustom* event) {
+  if (checkPuzzle()) {
+    EventUtils::dispatchEvent(Events::GAME_COMPLETED);
+  }
 }
 
 void Grid::replaceBoxKey(int old, int nVal) {
@@ -121,11 +125,14 @@ bool Grid::checkPuzzle() {
 
 void Grid::initEventStrings() {
   EventListenerManager::eventStrs.push_back(Events::GAME_UNDO);
+  EventListenerManager::eventStrs.push_back(Events::ANIMATION_COMPLETE);
 }
 
 void Grid::initEventHandlers() {
   EventListenerManager::eventHandlers.push_back(
       CC_CALLBACK_1(Grid::handleUndo, this));
+  EventListenerManager::eventHandlers.push_back(
+      CC_CALLBACK_1(Grid::checkPuzzleComplete, this));
 }
 
 bool Grid::checkIfUndo() { return prevMove.empty(); }
