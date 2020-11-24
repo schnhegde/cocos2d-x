@@ -20,6 +20,7 @@ class MainMenu : public Scene {
   CommonLayout* headerLayout;
   CommonLayout* logoLayout;
   CommonLayout* buttonsLayout;
+  CommonLayout* versionLayout;
 
   Button* playButton;
   Button* settingsButton;
@@ -27,9 +28,11 @@ class MainMenu : public Scene {
   void addHeaderLayout();
   void addLogoLayout();
   void addButtonsLayout();
+  void addVersionLayout();
 
   void loadPlistFile();
 
+  void CBBtnPrivacy(Ref* pSender, Widget::TouchEventType type);
   void CBBtnPlay(Ref* pSender, Widget::TouchEventType type);
   void CBBtnSettings(Ref* pSender, Widget::TouchEventType type);
 

@@ -58,6 +58,22 @@ bool isRewardedAdAvailable() {
   return ret;
 }
 
+std::string getVersionNumber() {
+  cocos2d::JniMethodInfo methodInfo;
+
+  jstring ret;
+  if (!cocos2d::JniHelper::getStaticMethodInfo(
+          methodInfo, "org/cocos2dx/cpp/AppActivity", "getVersionNumber",
+          "()Ljava/lang/String;"))
+    return nullptr;
+
+  ret = (jstring)methodInfo.env->CallStaticObjectMethod(methodInfo.classID,
+                                                        methodInfo.methodID);
+  methodInfo.env->DeleteLocalRef(methodInfo.classID);
+
+  return cocos2d::JniHelper::jstring2string(ret);
+}
+
 bool isTablet() {
   cocos2d::JniMethodInfo methodInfo;
   bool ret = false;

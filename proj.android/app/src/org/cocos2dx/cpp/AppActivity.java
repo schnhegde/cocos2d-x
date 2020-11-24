@@ -35,7 +35,6 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 import org.json.JSONObject;
 
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
@@ -54,13 +53,12 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.vinaykumar.sokoban.BuildConfig;
 import com.vinaykumar.sokoban.R;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
-import static org.cocos2dx.lib.Cocos2dxHelper.getActivity;
 
 
 public class AppActivity extends Cocos2dxActivity {
@@ -217,18 +215,10 @@ public class AppActivity extends Cocos2dxActivity {
                 }
             }
         });
-
-
     }
 
-    public static boolean isTablet() {
-        DisplayMetrics metrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        float yInches= metrics.heightPixels/metrics.ydpi;
-        float xInches= metrics.widthPixels/metrics.xdpi;
-        double diagonalInches = Math.sqrt(xInches*xInches + yInches*yInches);
-        return (diagonalInches>=6.5);
+    public static String getVersionNumber() {
+        return "v" + BuildConfig.VERSION_NAME;
     }
 
     public static void initAds() {
@@ -238,7 +228,7 @@ public class AppActivity extends Cocos2dxActivity {
                 MobileAds.initialize(instance, new OnInitializationCompleteListener() {
                     @Override
                     public void onInitializationComplete(InitializationStatus initializationStatus) {
-                        List<String> testDeviceIds = Arrays.asList("EAE7CE0472F02F7A2DE96560259168BB", "355C096D244FC2022B5747DAC070182A");
+                        List<String> testDeviceIds = Arrays.asList("EAE7CE0472F02F7A2DE96560259168BB");
                         RequestConfiguration configuration =
                                 new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
                         MobileAds.setRequestConfiguration(configuration);

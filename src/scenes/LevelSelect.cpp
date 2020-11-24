@@ -112,7 +112,8 @@ void LevelSelect::addGridLayout() {
   gridLayout = CommonLayout::create();
   gridLayout->setLayoutType(CommonLayout::Type::VERTICAL);
   gridLayout->setContentSize(Size(mainSize.width, mainSize.height * 0.5));
-  startValue = 1;
+  int currentLevel = GameManager::getInstance()->getCurrentLevel();
+  startValue = ((std::ceil(currentLevel / 16)) * 16) + 1;
 
   for (int i = 0; i < 4; i++) {
     CommonLayout* rowLayout = CommonLayout::create();

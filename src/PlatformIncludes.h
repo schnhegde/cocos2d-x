@@ -12,6 +12,7 @@ extern "C" void showRewardedAd();
 extern "C" void openFeedbackEmail();
 extern "C" void purchase();
 extern "C" bool isTablet();
+extern "C" std::string getVersionNumber(); 
 #endif
 
 #endif  // SRC_PLATFORMINCLUDES_H_
