@@ -96,10 +96,12 @@ public class IAPPlugin implements PurchasesUpdatedListener, BillingClientStateLi
     @Override
     public void onSkuDetailsResponse(BillingResult billingResult,
                                      List<SkuDetails> skuDetailsList) {
-        for(int i = 0; i < skuDetailsList.size(); i++) {
-            SkuDetails detail = skuDetailsList.get(i);
-            String sku = detail.getSku();
-            skudetails.put(sku, detail);
+        if (skuDetailsList) {
+            for(int i = 0; i < skuDetailsList.size(); i++) {
+                SkuDetails detail = skuDetailsList.get(i);
+                String sku = detail.getSku();
+                skudetails.put(sku, detail);
+            }
         }
     }
 

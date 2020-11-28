@@ -188,8 +188,10 @@ void LevelSelect::CBBtnLevel(Ref* pSender, Widget::TouchEventType type) {
   if (type == Widget::TouchEventType::ENDED) {
     SoundUtil::getInstance()->playEfxBtnTouched();
     Button* buttonClicked = reinterpret_cast<Button*>(pSender);
-    int levelNo = stoi(buttonClicked->getTitleText());
-    UiUtil::transitionFade(GameScene::createScene(levelNo));
+    if (buttonClicked->getTitleText() != "") {
+      int levelNo = stoi(buttonClicked->getTitleText());
+      UiUtil::transitionFade(GameScene::createScene(levelNo));
+    }
   }
 }
 
