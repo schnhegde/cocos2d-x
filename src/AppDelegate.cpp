@@ -71,6 +71,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
   auto scene = SplashScene::createScene();
   director->runWithScene(scene);
 #else
+  initAds();
   auto scene = MainMenu::createScene();
   director->runWithScene(scene);
 #endif

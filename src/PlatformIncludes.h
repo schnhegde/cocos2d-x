@@ -5,6 +5,13 @@
 #include "data/Config.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+void initAds();
+bool isRewardedAdAvailable();
+void showRewardedAd();
+void openFeedbackEmail();
+void purchase();
+bool isTablet();
+std::string getVersionNumber();
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)  // NOLINT
 extern "C" void initAds();
 extern "C" bool isRewardedAdAvailable();
