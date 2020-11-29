@@ -1,6 +1,7 @@
 #include "PlatformIncludes.h"
 #include <GoogleMobileAds/GADMobileAds.h>
 #import "../proj.ios_mac/ios/RootViewController.h"
+#import "../proj.ios_mac/ios/IAPPlugin.h"
 
 
 bool isRewardedAdAvailable() {
@@ -29,7 +30,7 @@ void openFeedbackEmail() {
 }
 
 void purchase() {
-    
+    [IAPPlugin purchase:@"buy_game"];
 }
 
 bool isTablet() {
