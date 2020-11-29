@@ -71,7 +71,7 @@
 
 -(void) loadRewardedVideo {
     self.rewardedAd = [[GADRewardedAd alloc]
-                          initWithAdUnitID:@"ca-app-pub-3940256099942544/1712485313"];
+                          initWithAdUnitID:@"ca-app-pub-2853844821432281/2495466249"];
     GADRequest *request = [GADRequest request];
      [self.rewardedAd loadRequest:request completionHandler:^(GADRequestError * _Nullable error) {
        if (error) {
@@ -130,6 +130,77 @@
     [super viewDidDisappear:animated];
 }
 
+- (NSString*) getDeviceInfo {
+    NSString* deviceInfo;
+    NSMutableDictionary* deviceObject = [[NSMutableDictionary alloc]init];
+    [deviceObject setValue:@"ios" forKey:@"type"];
+    [deviceObject setValue:@"ios" forKey:@"store"];
+    NSString * version =  [[[NSBundle mainBundle] infoDictionary]
+                           objectForKey: @"CFBundleShortVersionString"];
+    NSError * error;
+    NSURL* urlToDocumentsFolder =
+    [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory
+                                            inDomains:NSUserDomainMask] lastObject];
+    NSDate *installDate = [[[NSFileManager defaultManager]
+                            attributesOfItemAtPath:urlToDocumentsFolder.path error:&error]
+                           objectForKey:NSFileCreationDate];
+    NSString *m_platform = 0;
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char *machine = (char*)malloc(size + 1);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    machine[size] = '\0';
+    m_platform = [NSString stringWithUTF8String:machine];
+    [deviceObject setValue:[NSNumber numberWithDouble:[installDate
+                                                       timeIntervalSince1970] * 1000] forKey:@"installDate"];
+    [deviceObject setValue:version forKey:@"versionNumber"];
+    [deviceObject setValue:m_platform forKey:@"device"];
+    [deviceObject setValue:[[UIDevice currentDevice] systemVersion] forKey:@"os"];
+    deviceInfo = [self getJsonString:deviceObject];
+
+    return deviceInfo;
+}
+
+- (NSString*) getJsonString: (NSDictionary*)dict{
+    NSError* error = nil;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dict
+                                                       options:(NSJSONWritingOptions)0
+                                                         error:&error];
+    if (error) {
+        return nil;
+    }
+    NSString* serializedJson = [[NSString alloc] initWithData:jsonData
+                                                     encoding:NSUTF8StringEncoding];
+    return serializedJson;
+}
+
+- (void)emailFeedback {
+    NSString* dontRemove = @"   ***** DO NOT REMOVE THIS *****  ";
+
+    NSString *emailBody = [NSString stringWithFormat:@"%@%@%@", dontRemove, [self getDeviceInfo], dontRemove];
+    if ([MFMailComposeViewController canSendMail])
+    {
+        MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
+        mail.mailComposeDelegate = self;
+
+        [mail setSubject:@"\"Unblock\" game user feedback"];
+        [mail setMessageBody:emailBody isHTML:NO];
+        [mail setToRecipients:@[@"support@hashcube.freshdesk.com"]];
+        UIViewController *top = [UIApplication sharedApplication].keyWindow.rootViewController;
+        [top presentViewController:mail animated:YES completion:nil];
+    }
+    else
+    {
+        NSString *recipients = @"mailto:sokoban.feedback@gmail.com?subject=\"Sokoban \" feedback";
+        NSString *bodyDefaults= @"&body=";
+        NSString *body = [NSString stringWithFormat:@"%@%@", bodyDefaults, emailBody];
+        NSString *email = [NSString stringWithFormat:@"%@%@", recipients, body];
+        email = [email stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:email] options:@{} completionHandler:^(BOOL success) {
+        }];
+    }
+}
+
 
 // For ios6, use supportedInterfaceOrientations & shouldAutorotate instead
 #ifdef __IPHONE_6_0
@@ -181,6 +252,29 @@
     [super didReceiveMemoryWarning];
 
     // Release any cached data, images, etc that aren't in use.
+}
+
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(nullable NSError *)error {
+
+    switch (result) {
+        case MFMailComposeResultCancelled:
+            NSLog(@"Mail cancelled");
+            break;
+        case MFMailComposeResultSaved:
+            NSLog(@"Mail saved");
+            break;
+        case MFMailComposeResultSent:
+            NSLog(@"Mail sent");
+            break;
+        case MFMailComposeResultFailed:
+            NSLog(@"Mail sent failure: %@",error.description);
+            break;
+    }
+    NSLog(@"Mail dismiss");
+
+    // Dismiss the mail compose view controller.
+    [controller dismissViewControllerAnimated:true completion:nil];
+
 }
 
 

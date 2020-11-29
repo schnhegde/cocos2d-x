@@ -23,6 +23,9 @@ void showRewardedAd() {
 
 void openFeedbackEmail() {
     
+    RootViewController *controller = [UIApplication sharedApplication].keyWindow.rootViewController;
+    [controller emailFeedback];
+    
 }
 
 void purchase() {

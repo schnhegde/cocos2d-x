@@ -27,8 +27,12 @@
 #import <UIKit/UIKit.h>
 #include <GoogleMobileAds/GADRewardedAd.h>
 #include <GoogleMobileAds/GADRewardedAdDelegate.h>
+#import <MessageUI/MFMailComposeViewController.h>
+#import <MessageUI/MessageUI.h>
+#import <UIKit/UIKit.h>
+#import <sys/sysctl.h>
 
-@interface RootViewController : UIViewController  {
+@interface RootViewController : UIViewController <MFMailComposeViewControllerDelegate> {
 }
 @property(nonatomic, strong) GADRewardedAd *rewardedAd;
 @property(nonatomic) BOOL rewardedAdLoaded;
@@ -37,4 +41,7 @@
 - (void) loadRewardedVideo;
 - (BOOL) isRewardedAdLoaded;
 - (void) showRewardedVideo;
+- (void) emailFeedback;
+- (NSString*) getDeviceInfo;
+- (NSString*) getJsonString;
 @end
