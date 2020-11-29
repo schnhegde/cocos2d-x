@@ -29,6 +29,7 @@
 #include "EventUtils.h"
 #include "Events.h"
 #import "platform/ios/CCEAGLView-ios.h"
+#import "IAPPlugin.h"
 
 @interface RootViewController () <GADRewardedAdDelegate>
 @end
@@ -67,6 +68,7 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[IAPPlugin getInstance] initializePlugin];
 }
 
 -(void) loadRewardedVideo {

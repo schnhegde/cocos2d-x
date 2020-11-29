@@ -19,6 +19,8 @@
 		294D0D641D0D56D500F7F5D4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 294D0D631D0D56D500F7F5D4 /* CoreText.framework */; };
 		45A69C6B2D59557A7895709F /* Pods_Sokoban_mobile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A98BDA2AFB59E5CFB26F84A /* Pods_Sokoban_mobile.framework */; };
 		52B47A471A53D09C004E4C60 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52B47A461A53D09B004E4C60 /* Security.framework */; };
+		941A10512573C2FC0066ACCE /* IAPPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = 941A10502573C2FC0066ACCE /* IAPPlugin.mm */; };
+		941A10542573CDC20066ACCE /* storekit.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 941A10532573CDC20066ACCE /* storekit.storekit */; };
 		94608D46256D94C5000E093C /* MainMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94608D13256D94C5000E093C /* MainMenu.cpp */; };
 		94608D47256D94C5000E093C /* WatchVideoPopup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94608D16256D94C5000E093C /* WatchVideoPopup.cpp */; };
 		94608D48256D94C5000E093C /* SplashScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94608D18256D94C5000E093C /* SplashScene.cpp */; };
@@ -140,6 +142,9 @@
 		5087E78A17EB975400C73F5D /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		52B47A461A53D09B004E4C60 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		8262943D1AAF051F00CB7CF7 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		941A104F2573C2FC0066ACCE /* IAPPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IAPPlugin.h; sourceTree = "<group>"; };
+		941A10502573C2FC0066ACCE /* IAPPlugin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IAPPlugin.mm; sourceTree = "<group>"; };
+		941A10532573CDC20066ACCE /* storekit.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = storekit.storekit; sourceTree = "<group>"; };
 		94608D12256D94C5000E093C /* GameScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameScene.h; sourceTree = "<group>"; };
 		94608D13256D94C5000E093C /* MainMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainMenu.cpp; sourceTree = "<group>"; };
 		94608D14256D94C5000E093C /* MainMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainMenu.h; sourceTree = "<group>"; };
@@ -280,6 +285,8 @@
 		1AF87B461F6F77D6007BE51C /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				941A104F2573C2FC0066ACCE /* IAPPlugin.h */,
+				941A10502573C2FC0066ACCE /* IAPPlugin.mm */,
 				94608DBE256DAF53000E093C /* GoogleService-Info.plist */,
 				1A88B2631FC3D9C9005C14AE /* Images.xcassets */,
 				1AF87B471F6F77D6007BE51C /* AppController.h */,
@@ -291,6 +298,7 @@
 				1AF87B5C1F6F77D6007BE51C /* Prefix.pch */,
 				1AF87B5D1F6F77D6007BE51C /* RootViewController.h */,
 				1AF87B5E1F6F77D6007BE51C /* RootViewController.mm */,
+				941A10532573CDC20066ACCE /* storekit.storekit */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -598,6 +606,7 @@
 				94608D94256D94CE000E093C /* level_complete.mp3 in Resources */,
 				94608D91256D94CE000E093C /* button_orange_small.png in Resources */,
 				1A88B2641FC3D9C9005C14AE /* Images.xcassets in Resources */,
+				941A10542573CDC20066ACCE /* storekit.storekit in Resources */,
 				94608D86256D94CE000E093C /* hand.png in Resources */,
 				94608D89256D94CE000E093C /* splash.png in Resources */,
 				94608D8B256D94CE000E093C /* GameFinishScene.png in Resources */,
@@ -717,6 +726,7 @@
 				94608D46256D94C5000E093C /* MainMenu.cpp in Sources */,
 				94608D5B256D94C5000E093C /* Entity.cpp in Sources */,
 				94608D51256D94C5000E093C /* EventListenerManager.cpp in Sources */,
+				941A10512573C2FC0066ACCE /* IAPPlugin.mm in Sources */,
 				94608D56256D94C5000E093C /* SoundUtil.cpp in Sources */,
 				94608D5C256D94C5000E093C /* Grid.cpp in Sources */,
 				94608D58256D94C5000E093C /* Config.cpp in Sources */,
@@ -745,7 +755,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				CURRENT_PROJECT_VERSION = 0.971;
+				CURRENT_PROJECT_VERSION = 1.01;
 				DEVELOPMENT_TEAM = 45R9A5996A;
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -763,7 +773,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 0.971;
+				MARKETING_VERSION = 1.01;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"$(_COCOS_LIB_IOS_BEGIN)",
@@ -785,7 +795,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				CURRENT_PROJECT_VERSION = 0.971;
+				CURRENT_PROJECT_VERSION = 1.01;
 				DEVELOPMENT_TEAM = 45R9A5996A;
 				ENABLE_BITCODE = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
@@ -802,7 +812,7 @@
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LIBRARY_SEARCH_PATHS = "";
-				MARKETING_VERSION = 0.971;
+				MARKETING_VERSION = 1.01;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"$(_COCOS_LIB_IOS_BEGIN)",
