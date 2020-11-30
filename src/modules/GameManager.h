@@ -22,6 +22,8 @@ class GameManager {
   void init();
   bool billingConnected;
   bool gameOwned;
+  int launchCount;
+  unsigned long int reviewToShow;
 
  public:
   static GameManager* getInstance();
@@ -30,6 +32,12 @@ class GameManager {
   void setSoundState(bool state);
   void setMusicState(bool state);
   int getTotalStarsWon();
+
+  int getLaunchCount();
+  void incrementLaunchCount();
+
+  void setReviewShown();
+  unsigned long int getReviewToShow();
 
   int getCurrentLevel();
   void setCurrentLevel(int level);

@@ -25,6 +25,7 @@ THE SOFTWARE.
 package org.cocos2dx.cpp;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -54,6 +55,13 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.review.testing.FakeReviewManager;
+import com.google.android.play.core.tasks.OnCompleteListener;
+import com.google.android.play.core.tasks.Task;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.vinaykumar.sokoban.BuildConfig;
 import com.vinaykumar.sokoban.R;
 
@@ -218,6 +226,38 @@ public class AppActivity extends Cocos2dxActivity {
         });
     }
 
+    static void crashlyticsLog(final String logMessage) {
+        FirebaseCrashlytics.getInstance().log(logMessage);
+    }
+
+    public static void openReviewFlow() {
+        final ReviewManager manager = ReviewManagerFactory.create(instance);
+        Task<ReviewInfo> request = manager.requestReviewFlow();
+        request.addOnCompleteListener(new OnCompleteListener<ReviewInfo>() {
+            @Override
+            public void onComplete(Task<ReviewInfo> task) {
+                if (task.isSuccessful()) {
+                    // We can get the ReviewInfo object
+                    ReviewInfo reviewInfo = task.getResult();
+                    Task<Void> flow = manager.launchReviewFlow(instance, reviewInfo);
+                    flow.addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(Task<Void> task) {
+                        }
+                    });
+                } else {
+                    String url = "https://play.google.com/store/apps/details?id=com.vinaykumar.sokoban";
+                    Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    try {
+                        instance.startActivity( appIntent );
+                    } catch (ActivityNotFoundException e) {
+                        crashlyticsLog(e.toString());
+                    }
+                }
+            }
+        });
+    }
+
     public static boolean isTablet() {
         DisplayMetrics metrics = new DisplayMetrics();
         instance.getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -225,7 +265,7 @@ public class AppActivity extends Cocos2dxActivity {
         float yInches= metrics.heightPixels/metrics.ydpi;
         float xInches= metrics.widthPixels/metrics.xdpi;
         double diagonalInches = Math.sqrt(xInches*xInches + yInches*yInches);
-        if (diagonalInches>=6.5){
+        if (diagonalInches>=7.0){
             return true;
         }else{
             return false;

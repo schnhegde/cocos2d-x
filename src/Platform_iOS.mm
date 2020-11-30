@@ -29,6 +29,11 @@ void openFeedbackEmail() {
     
 }
 
+void openReviewFlow() {
+    NSString *iTunesLink = [NSString stringWithFormat:@"itms://itunes.apple.com/app/%s", "id1508559245"];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]];
+}
+
 void purchase() {
     [IAPPlugin purchase:@"buy_game"];
 }

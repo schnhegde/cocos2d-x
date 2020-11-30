@@ -152,27 +152,28 @@ Layout* LevelSelect::createLevelButton(int levelNo) {
   starsLayout->setName("starsLayout");
   starsLayout->setLayoutType(CommonLayout::Type::HORIZONTAL);
   starsLayout->setContentSize(Size(buttonSize.width, buttonSize.height * 0.4));
-  if (levelNo <= Config::TOTAL_LEVELS) {
-    if (levelNo > GameManager::getInstance()->getCurrentLevel()) {
-      levelButton->loadTextureNormal("button_locked.png",
-                                     Widget::TextureResType::LOCAL);
-      levelButton->setTitleText("");
-    } else {
-      for (int i = 1; i <= 3; i++) {
-        ImageView* starImage = nullptr;
-        if (starCount >= i) {
-          starImage =
-              ImageView::create("./star_on", Widget::TextureResType::PLIST);
-        } else {
-          starImage =
-              ImageView::create("./star_off", Widget::TextureResType::PLIST);
-        }
-        starImage->setScale(0.30f);
-        starsLayout->addChild(starImage);
+  if (levelNo > GameManager::getInstance()->getCurrentLevel()) {
+    levelButton->loadTextureNormal("button_locked.png",
+                                   Widget::TextureResType::LOCAL);
+    levelButton->setTitleText("");
+  } else {
+    for (int i = 1; i <= 3; i++) {
+      ImageView* starImage = nullptr;
+      if (starCount >= i) {
+        starImage =
+            ImageView::create("./star_on", Widget::TextureResType::PLIST);
+      } else {
+        starImage =
+            ImageView::create("./star_off", Widget::TextureResType::PLIST);
       }
+      starImage->setScale(0.30f);
+      starsLayout->addChild(starImage);
     }
-    buttonBg->setScale(Config::DSP_SCALE);
-    buttonBg->addChild(levelButton);
+  }
+  buttonBg->setScale(Config::DSP_SCALE);
+  buttonBg->addChild(levelButton);
+  if (levelNo > Config::TOTAL_LEVELS) {
+    levelButton->setVisible(false);
   }
   starsLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   buttonBg->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
@@ -264,6 +265,8 @@ void LevelSelect::refreshLevelButtons() {
             starsLayout->addChild(starImage);
           }
         }
+      } else {
+        button->setVisible(false);
       }
     }
   }
