@@ -1,6 +1,9 @@
 #include "./GameManager.h"
 
 #include "../data/Keys.h"
+#include <string>
+
+using std::string;
 
 using data::Keys;
 
@@ -24,7 +27,9 @@ void GameManager::init() {
   undoCount = userPrefs->getIntegerForKey(Keys::UNDO_COUNT, 3);
   solutionCount = userPrefs->getIntegerForKey(Keys::SOLUTION_COUNT, 3);
   currentLevel = userPrefs->getIntegerForKey(Keys::CURRENT_LEVEL, 1);
+  launchCount = userPrefs->getIntegerForKey(Keys::LAUNCH_COUNT, 0);
   isTutorialDone = userPrefs->getBoolForKey(Keys::TUTORIAL_DONE, false);
+  reviewToShow = std::stoul(userPrefs->getStringForKey(Keys::REVIEW_TO_SHOW, "0"));
   gameOwned = userPrefs->getBoolForKey(Keys::GAME_OWNED, false);
   billingConnected = false;
 }
@@ -105,6 +110,25 @@ bool GameManager::isGameOwned() { return gameOwned; }
 void GameManager::setGameOwned(bool owned) {
   gameOwned = owned;
   userPrefs->setBoolForKey(Keys::GAME_OWNED, gameOwned);
+}
+
+void GameManager::incrementLaunchCount() {
+  launchCount++;
+  userPrefs->setIntegerForKey(Keys::LAUNCH_COUNT, launchCount);
+}
+
+int GameManager::getLaunchCount() {
+  return launchCount;
+}
+
+void GameManager::setReviewShown() {
+  unsigned long int now = std::time(NULL);
+  reviewToShow = now + 86400;
+  userPrefs->setStringForKey(Keys::REVIEW_TO_SHOW, std::to_string(reviewToShow));
+}
+
+unsigned long int GameManager::getReviewToShow() {
+  return reviewToShow;
 }
 
 bool GameManager::getBillingConnected() { return billingConnected; }

@@ -10,6 +10,7 @@
 #include "./Settings.h"
 #include "./GameScene.h"
 #include "../PlatformIncludes.h"
+#include "MessagePopup.h"
 
 using cocos2d::Color4B;
 using cocos2d::Director;
@@ -67,6 +68,20 @@ void MainMenu::onEnter() {
   addVersionLayout();
   mainLayout->justifyChildren(CommonLayout::JUSTIFY::EVENLY);
   addChild(mainLayout);
+  
+  GameManager::getInstance()->incrementLaunchCount();
+  if (GameManager::getInstance()->getLaunchCount() % 3 == 0) {
+    unsigned long int now = std::time(NULL);
+    if (now >= GameManager::getInstance()->getReviewToShow()) {
+      addGiveReviewPopup();
+    }
+  }
+}
+
+void MainMenu::addGiveReviewPopup() {
+  auto popup = MessagePopup::createPopup("Please write a review, it helps us improve the game\nand give you a better experience", MessagePopup::MessageType::REVIEW_MESSAGE);
+  addChild(popup, 10);
+  GameManager::getInstance()->setReviewShown();
 }
 
 void MainMenu::addHeaderLayout() {

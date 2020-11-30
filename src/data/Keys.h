@@ -14,6 +14,8 @@ class Keys {
   static const char LEVEL_STARS[];
 
   static const char TOTAL_STARS[];
+  static const char LAUNCH_COUNT[];
+  static const char REVIEW_TO_SHOW[];
 
   static const char TUTORIAL_DONE[];
   static const char GAME_OWNED[];

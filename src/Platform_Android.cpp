@@ -42,6 +42,17 @@ void openFeedbackEmail() {
   methodInfo.env->DeleteLocalRef(methodInfo.classID);
 }
 
+void openReviewFlow() {
+  cocos2d::JniMethodInfo methodInfo;
+
+  if (!cocos2d::JniHelper::getStaticMethodInfo(
+          methodInfo, "org/cocos2dx/cpp/AppActivity", "openReviewFlow", "()V"))
+    return;
+
+  methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID);
+  methodInfo.env->DeleteLocalRef(methodInfo.classID);
+}
+
 bool isRewardedAdAvailable() {
   cocos2d::JniMethodInfo methodInfo;
   bool ret = false;

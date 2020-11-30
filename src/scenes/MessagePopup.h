@@ -9,15 +9,22 @@ using cocos2d::ui::Widget;
 
 namespace scenes {
 class MessagePopup : public CommonLayout {
+  public:
+    enum class MessageType {
+        SIMPLE_MESSAGE,
+        REVIEW_MESSAGE
+    };
   private:
+    MessageType messageType;
     CommonLayout* buttonsLayout;
     CommonLayout* messageLayout;
     std::string message;
     void createView();
     void CBBtnOk(Ref* sender, Widget::TouchEventType type);
+    void CBBtnCancel(Ref* sender, Widget::TouchEventType type);
     void swallowTouches();
   public:
-    static MessagePopup* createPopup(std::string message);
+    static MessagePopup* createPopup(std::string message, MessageType type = MessageType::SIMPLE_MESSAGE);
     CREATE_FUNC(MessagePopup);
     virtual void onEnter();
 };

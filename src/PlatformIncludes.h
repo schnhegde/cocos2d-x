@@ -11,12 +11,14 @@ void showRewardedAd();
 void openFeedbackEmail();
 void purchase();
 bool isTablet();
+void openReviewFlow();
 std::string getVersionNumber();
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)  // NOLINT
 extern "C" void initAds();
 extern "C" bool isRewardedAdAvailable();
 extern "C" void showRewardedAd();
 extern "C" void openFeedbackEmail();
+extern "C" void openReviewFlow();
 extern "C" void purchase();
 extern "C" bool isTablet();
 extern "C" std::string getVersionNumber(); 

@@ -30,6 +30,8 @@ class MainMenu : public Scene {
   void addButtonsLayout();
   void addVersionLayout();
 
+  void addGiveReviewPopup();
+
   void loadPlistFile();
 
   void CBBtnPrivacy(Ref* pSender, Widget::TouchEventType type);
