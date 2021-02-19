@@ -40,7 +40,6 @@
 #include "platform/CCFileUtils.h"
 #include "ui/UIWebView.h"
 
-
 @interface UIWebViewWrapper : NSObject
 @property (nonatomic) std::function<bool(std::string url)> shouldStartLoading;
 @property (nonatomic) std::function<void(std::string url)> didFinishLoading;
@@ -123,8 +122,9 @@
 
 - (void)setupWebView {
     if (!self.wkWebView) {
-        self.wkWebView = [[WKWebView alloc] init];
+        self.wkWebView = [[[WKWebView alloc] init] autorelease];
         self.wkWebView.UIDelegate = self;
+        self.wkWebView.navigationDelegate = self;
     }
     if (!self.wkWebView.superview) {
         auto view = cocos2d::Director::getInstance()->getOpenGLView();
@@ -143,8 +143,8 @@
 }
 
 - (void)setOpacityWebView:(float)opacity {
-    if (!self.wkWebView) {[self setupWebView];}
-    self.wkWebView.alpha=opacity;
+    if (!self.wkWebView) { [self setupWebView]; }
+    self.wkWebView.alpha = opacity;
     [self.wkWebView setOpaque:YES];
 }
 
@@ -172,21 +172,21 @@
 
 - (void)loadData:(const std::string &)data MIMEType:(const std::string &)MIMEType textEncodingName:(const std::string &)encodingName baseURL:(const std::string &)baseURL {
     auto path = [[NSBundle mainBundle] resourcePath];
-        path = [path stringByAppendingPathComponent:@(baseURL.c_str() )];
-        auto url = [NSURL fileURLWithPath:path];
+    path = [path stringByAppendingPathComponent:@(baseURL.c_str() )];
+    auto url = [NSURL fileURLWithPath:path];
 
-        [self.wkWebView loadData:[NSData dataWithBytes:data.c_str() length:data.length()]
+    [self.wkWebView loadData:[NSData dataWithBytes:data.c_str() length:data.length()]
                     MIMEType:@(MIMEType.c_str())
-            characterEncodingName:@(encodingName.c_str())
+       characterEncodingName:@(encodingName.c_str())
                      baseURL:url];
 }
 
 - (void)loadHTMLString:(const std::string &)string baseURL:(const std::string &)baseURL {
     if (!self.wkWebView) {[self setupWebView];}
-        auto path = [[NSBundle mainBundle] resourcePath];
-        path = [path stringByAppendingPathComponent:@(baseURL.c_str() )];
-        auto url = [NSURL fileURLWithPath:path];
-        [self.wkWebView loadHTMLString:@(string.c_str()) baseURL:url];
+    auto path = [[NSBundle mainBundle] resourcePath];
+    path = [path stringByAppendingPathComponent:@(baseURL.c_str() )];
+    auto url = [NSURL fileURLWithPath:path];
+    [self.wkWebView loadHTMLString:@(string.c_str()) baseURL:url];
 }
 
 - (void)loadUrl:(const std::string &)urlString cleanCachedData:(BOOL) needCleanCachedData {
@@ -201,8 +201,6 @@
 
     [self.wkWebView loadRequest:request];
 }
-
-
 
 - (void)loadFile:(const std::string &)filePath {
     if (!self.wkWebView) {[self setupWebView];}
@@ -237,19 +235,20 @@
 
 - (void)evaluateJS:(const std::string &)js {
     if (!self.wkWebView) {[self setupWebView];}
-        [self.wkWebView evaluateJavaScript:@(js.c_str()) completionHandler:nil];
+    [self.wkWebView evaluateJavaScript:@(js.c_str()) completionHandler:nil];
 }
 
 - (void)setScalesPageToFit:(const bool)scalesPageToFit {
-    // TODO: there is not corresponding API in WK.
-    // https://stackoverflow.com/questions/26295277/wkwebview-equivalent-for-uiwebviews-scalespagetofit/43048514 seems has a solution,
-    // but it doesn't support setting it dynamically. If we want to set this feature dynamically, then it will be too complex.
+// TODO: there is not corresponding API in WK.
+// https://stackoverflow.com/questions/26295277/wkwebview-equivalent-for-uiwebviews-scalespagetofit/43048514 seems has a solution,
+// but it doesn't support setting it dynamically. If we want to set this feature dynamically, then it will be too complex.
 }
+
 
 
 #pragma mark - WKNavigationDelegate
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    NSString *url = [webView.URL absoluteString];
+    NSString *url = [[[navigationAction request] URL] absoluteString];
     if ([[webView.URL scheme] isEqualToString:self.jsScheme]) {
         self.onJsCallback([url UTF8String]);
         decisionHandler(WKNavigationActionPolicyCancel);
@@ -260,8 +259,10 @@
             decisionHandler(WKNavigationActionPolicyAllow);
         else
             decisionHandler(WKNavigationActionPolicyCancel);
+
         return;
     }
+
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
@@ -298,7 +299,6 @@
     auto rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
     [rootViewController presentViewController:alertController animated:YES completion:^{}];
 }
-
 
 @end
 

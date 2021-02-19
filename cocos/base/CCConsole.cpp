@@ -71,7 +71,7 @@
 #include "base/allocator/CCAllocatorDiagnostics.h"
 NS_CC_BEGIN
 
-extern const char* cocos2dVersion(void);
+extern const char* cocos2dVersion();
 
 #define PROMPT  "> "
 #define DEFAULT_COMMAND_SEPARATOR '|'
@@ -114,7 +114,7 @@ namespace {
         if (Director::getInstance()->getOpenGLView())
         {
             HWND hwnd = Director::getInstance()->getOpenGLView()->getWin32Window();
-            PostMessage(hwnd,
+            SendMessage(hwnd,
                         WM_COPYDATA,
                         (WPARAM)(HWND)hwnd,
                         (LPARAM)(LPVOID)&myCDS);
@@ -166,7 +166,9 @@ void log(const char * format, ...)
             delete[] buf;
         }
     } while (true);
+#if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
     buf[nret] = '\n';
+#endif
     buf[++nret] = '\0';
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
@@ -189,8 +191,11 @@ void log(const char * format, ...)
         MultiByteToWideChar(CP_UTF8, 0, tempBuf, -1, wszBuf, sizeof(wszBuf));
         OutputDebugStringW(wszBuf);
         WideCharToMultiByte(CP_ACP, 0, wszBuf, -1, tempBuf, sizeof(tempBuf), nullptr, FALSE);
+#if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32     
         printf("%s", tempBuf);
-
+#else
+        printf("%s\n", tempBuf);
+#endif
         pos += dataSize;
 
     } while (pos < len);
@@ -715,7 +720,7 @@ void Console::log(const char* buf)
 {
     if( _sendDebugStrings ) {
         _DebugStringsMutex.lock();
-        _DebugStrings.push_back(buf);
+        _DebugStrings.emplace_back(buf);
         _DebugStringsMutex.unlock();
     }
 }
@@ -1165,7 +1170,7 @@ void Console::commandDebugMsg(int fd, const std::string& /*args*/)
 
 void Console::commandDebugMsgSubCommandOnOff(int /*fd*/, const std::string& args)
 {
-    _sendDebugStrings = (args.compare("on") == 0);
+    _sendDebugStrings = (args == "on");
 }
 
 void Console::commandDirectorSubCommandPause(int /*fd*/, const std::string& /*args*/)
@@ -1233,7 +1238,7 @@ void Console::commandFps(int fd, const std::string& /*args*/)
 
 void Console::commandFpsSubCommandOnOff(int /*fd*/, const std::string& args)
 {
-    bool state = (args.compare("on") == 0);
+    bool state = (args == "on");
     Director *dir = Director::getInstance();
     Scheduler *sched = dir->getScheduler();
     sched->performFunctionInCocosThread( std::bind(&Director::setDisplayStats, dir, state));
