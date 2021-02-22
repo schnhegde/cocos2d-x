@@ -91,6 +91,7 @@ public class IAPPlugin implements PurchasesUpdatedListener, BillingClientStateLi
     @Override
     public void onBillingServiceDisconnected() {
         nativeConnectedEvent(false);
+        client.startConnection(this);
     }
 
     @Override
